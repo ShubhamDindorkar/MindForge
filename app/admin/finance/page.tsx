@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { financialSummaries, categorySpending, forecastData, inventoryItems } from "@/_lib/mock-data";
+import { useInventory } from "@/_lib/inventory-context";
+import { financialSummaries, categorySpending, forecastData } from "@/_lib/mock-data";
 import { formatCurrency } from "@/_lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/_components/ui/tabs";
 import {
@@ -62,6 +63,8 @@ const tooltipStyle = {
 };
 
 export default function FinancePage() {
+  const { items: inventoryItems } = useInventory();
+
   const [growthRate, setGrowthRate] = useState(10);
   const [recommendations, setRecommendations] = useState<AiRecommendation[]>([]);
   const [recommendationHorizon, setRecommendationHorizon] = useState<30 | 60 | 90>(30);
@@ -143,7 +146,7 @@ export default function FinancePage() {
       [...inventoryItems]
         .sort((a, b) => b.unitCost * b.quantity - a.unitCost * a.quantity)
         .slice(0, 5),
-    []
+    [inventoryItems]
   );
 
   const plTotals = useMemo(() => {
@@ -161,7 +164,7 @@ export default function FinancePage() {
         (map[item.category] || 0) + item.sellPrice * item.quantity;
     });
     return Object.entries(map).map(([category, value]) => ({ category, value }));
-  }, []);
+  }, [inventoryItems]);
 
   const reorderAlerts = useMemo(
     () =>
@@ -171,7 +174,7 @@ export default function FinancePage() {
           ...item,
           estimatedReorderCost: item.reorderPoint * item.unitCost * 2,
         })),
-    []
+    [inventoryItems]
   );
 
   const adjustedForecast = useMemo(() => {

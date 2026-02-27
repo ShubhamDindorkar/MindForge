@@ -30,10 +30,9 @@ import {
   Cell,
 } from "recharts";
 import {
-  inventoryItems,
-  transactions,
   financialSummaries,
 } from "@/_lib/mock-data";
+import { useInventory } from "@/_lib/inventory-context";
 import { formatCurrency, formatRelativeTime, cn } from "@/_lib/utils";
 import {
   Card,
@@ -68,6 +67,8 @@ const TYPE_ICON = {
 };
 
 export default function AdminDashboardPage() {
+  const { items: inventoryItems, transactions } = useInventory();
+
   /* AI Insights state */
   const [insights, setInsights] = useState<InsightsResponse | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -92,7 +93,7 @@ export default function AdminDashboardPage() {
 
   const totalItems = useMemo(
     () => inventoryItems.reduce((sum, item) => sum + item.quantity, 0),
-    []
+    [inventoryItems]
   );
 
   const totalValue = useMemo(
@@ -101,7 +102,7 @@ export default function AdminDashboardPage() {
         (sum, item) => sum + item.quantity * item.unitCost,
         0
       ),
-    []
+    [inventoryItems]
   );
 
   const latestMonth = financialSummaries[financialSummaries.length - 1];
@@ -117,12 +118,12 @@ export default function AdminDashboardPage() {
 
   const lowStockItems = useMemo(
     () => inventoryItems.filter((item) => item.quantity <= item.reorderPoint),
-    []
+    [inventoryItems]
   );
 
   const recentTransactions = useMemo(
     () => [...transactions].slice(0, 10),
-    []
+    [transactions]
   );
 
   const categoryData = useMemo(() => {
@@ -132,7 +133,7 @@ export default function AdminDashboardPage() {
       map.set(item.category, (map.get(item.category) ?? 0) + val);
     });
     return Array.from(map, ([name, value]) => ({ name, value }));
-  }, []);
+  }, [inventoryItems]);
 
   const kpis = [
     {

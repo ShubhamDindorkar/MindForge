@@ -176,8 +176,22 @@ export function getInsights(): Promise<InsightsResponse> {
   return apiFetch<InsightsResponse>("/api/insights");
 }
 
-/** Get demand forecast for a specific SKU. */
-export function getForecast(sku: string): Promise<ForecastResponse> {
+/** Get demand forecast for a specific SKU. Optionally pass item data for new items not in backend. */
+export function getForecast(sku: string, item?: {
+  name: string;
+  category: string;
+  quantity: number;
+  unitCost: number;
+  sellPrice: number;
+  location: string;
+  reorderPoint: number;
+}): Promise<ForecastResponse> {
+  if (item) {
+    return apiFetch<ForecastResponse>(`/api/forecast/${encodeURIComponent(sku)}`, {
+      method: "POST",
+      body: JSON.stringify({ item }),
+    });
+  }
   return apiFetch<ForecastResponse>(`/api/forecast/${encodeURIComponent(sku)}`);
 }
 

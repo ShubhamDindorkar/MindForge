@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   ReactNode,
 } from "react";
 import { InventoryItem, Transaction } from "./types";
@@ -13,6 +14,33 @@ import {
   transactions as seedTransactions,
 } from "./mock-data";
 import { generateId } from "./utils";
+
+/* ── localStorage helpers ─────────────────────────────────────────── */
+
+const STORAGE_KEY_ITEMS = "stockshift_inventory_items";
+const STORAGE_KEY_TRANSACTIONS = "stockshift_transactions";
+
+function loadFromStorage<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) return JSON.parse(raw) as T;
+  } catch {
+    // corrupted data — fall back to seed
+  }
+  return fallback;
+}
+
+function saveToStorage<T>(key: string, data: T) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    // storage full — silently ignore
+  }
+}
+
+/* ── Context definition ───────────────────────────────────────────── */
 
 interface InventoryContextValue {
   items: InventoryItem[];
@@ -30,9 +58,21 @@ const InventoryContext = createContext<InventoryContextValue | undefined>(
 );
 
 export function InventoryProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<InventoryItem[]>(seedItems);
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(seedTransactions);
+  const [items, setItems] = useState<InventoryItem[]>(() =>
+    loadFromStorage<InventoryItem[]>(STORAGE_KEY_ITEMS, seedItems)
+  );
+  const [transactions, setTransactions] = useState<Transaction[]>(() =>
+    loadFromStorage<Transaction[]>(STORAGE_KEY_TRANSACTIONS, seedTransactions)
+  );
+
+  /* Persist to localStorage whenever items or transactions change */
+  useEffect(() => {
+    saveToStorage(STORAGE_KEY_ITEMS, items);
+  }, [items]);
+
+  useEffect(() => {
+    saveToStorage(STORAGE_KEY_TRANSACTIONS, transactions);
+  }, [transactions]);
 
   const addItem = useCallback(
     (data: Omit<InventoryItem, "id" | "createdAt" | "updatedAt">) => {

@@ -370,7 +370,7 @@ INVENTORY DATA:
         })
 
 
-@app.route("/api/forecast/<sku>", methods=["GET"])
+@app.route("/api/forecast/<sku>", methods=["GET", "POST"])
 def forecast(sku: str):
     """Get demand forecast for a specific SKU."""
     cache_key = f"forecast_{sku}"
@@ -380,8 +380,35 @@ def forecast(sku: str):
             return jsonify(cached)
 
     sku_data = get_sku_data(sku)
+
+    # If SKU not found in historical data, check for item details in POST body
     if not sku_data:
-        return jsonify({"error": f"SKU {sku} not found"}), 404
+        body = request.get_json(silent=True) or {}
+        item_info = body.get("item")
+        if not item_info:
+            return jsonify({"error": f"SKU {sku} not found"}), 404
+
+        # Build a synthetic sku_data from the frontend item info
+        sku_data = {
+            "sku": sku,
+            "name": item_info.get("name", "Unknown Item"),
+            "category": item_info.get("category", "General"),
+            "location": item_info.get("location", "Unknown"),
+            "unit_cost": item_info.get("unitCost", 0),
+            "sell_price": item_info.get("sellPrice", 0),
+            "lead_time_days": 7,
+            "current_stock": item_info.get("quantity", 0),
+            "days_until_stockout": 999 if item_info.get("quantity", 0) > 0 else 0,
+            "avg_daily_demand_7d": 0,
+            "avg_daily_demand_30d": 0,
+            "avg_daily_demand_90d": 0,
+            "std_deviation_30d": 0,
+            "trend_slope_90d": 0,
+            "yoy_change_pct": 0,
+            "seasonal_factors": {},
+            "recent_anomaly_count": 0,
+            "recent_daily": [],
+        }
 
     context = build_sku_context(sku_data)
 
