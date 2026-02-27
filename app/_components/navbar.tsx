@@ -238,7 +238,7 @@ export const NavbarLogo = () => {
     >
       <Boxes className="h-6 w-6 text-black" />
       <span className="text-sm font-medium tracking-[0.24em] uppercase text-black">
-        MindForge
+        StockShiftAI
       </span>
     </a>
   );

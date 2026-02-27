@@ -1,5 +1,5 @@
 """
-MindForge AI Backend — RAG-powered inventory optimization.
+StockShiftAI Backend — RAG-powered inventory optimization.
 
 Endpoints:
   GET  /api/health              — Health check
@@ -198,7 +198,7 @@ def call_llm(system_prompt: str, user_prompt: str) -> str:
 
 # ── Helper: build context prompt from stats ──────────────────────────────────
 
-SYSTEM_PROMPT = """You are MindForge AI, an expert inventory optimization assistant.
+SYSTEM_PROMPT = """You are StockShiftAI, an expert inventory optimization assistant.
 You analyze inventory data and provide actionable recommendations.
 
 IMPORTANT RULES:
@@ -224,8 +224,8 @@ SKU: {sku_data.get('sku')}
 Name: {sku_data.get('name')}
 Category: {sku_data.get('category')}
 Location: {sku_data.get('location')}
-Unit Cost: ${sku_data.get('unit_cost', 0):.2f}
-Sell Price: ${sku_data.get('sell_price', 0):.2f}
+Unit Cost: ₹{sku_data.get('unit_cost', 0):.2f}
+Sell Price: ₹{sku_data.get('sell_price', 0):.2f}
 Lead Time: {sku_data.get('lead_time_days', 7)} days
 
 Current Stock: {sku_data.get('current_stock', 0)} units
@@ -691,7 +691,7 @@ def warehouse_optimization():
     
     context = build_all_skus_context(all_stats)
     location_summary = "\n".join([
-        f"{loc}: {len(items)} SKUs, total stock value: ${sum(i.get('current_stock', 0) * i.get('unit_cost', 0) for i in items):.2f}"
+        f"{loc}: {len(items)} SKUs, total stock value: ₹{sum(i.get('current_stock', 0) * i.get('unit_cost', 0) for i in items):.2f}"
         for loc, items in by_location.items()
     ])
     

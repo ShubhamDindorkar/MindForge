@@ -23,8 +23,8 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const STORAGE_KEY_USER = "mindforge_user";
-const STORAGE_KEY_ROLE = "mindforge_role";
+const STORAGE_KEY_USER = "stockshiftai_user";
+const STORAGE_KEY_ROLE = "stockshiftai_role";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

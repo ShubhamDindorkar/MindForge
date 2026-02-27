@@ -1,5 +1,5 @@
 /**
- * MindForge AI Service — Frontend API layer for the Flask RAG backend.
+ * StockShiftAI Service — Frontend API layer for the Flask RAG backend.
  */
 
 const API_BASE =

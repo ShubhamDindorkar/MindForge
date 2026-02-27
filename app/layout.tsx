@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "MindForge - Inventory Management",
+  title: "StockShiftAI - Inventory Management",
   description: "Streamline your inventory. Master your finances.",
 };
 

@@ -188,7 +188,7 @@ export default function ScenarioPlanningPage() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-700">
-                    ${data.overall_impact.capital_change.toLocaleString()}
+                    ₹{data.overall_impact.capital_change.toLocaleString()}
                   </div>
                   <p className="text-sm text-blue-600 mt-1">Capital Change</p>
                 </div>

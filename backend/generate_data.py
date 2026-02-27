@@ -1,5 +1,5 @@
 """
-generate_data.py — Generate 3 years of realistic daily inventory data for MindForge.
+generate_data.py — Generate 3 years of realistic daily inventory data for StockShiftAI.
 
 Run:  python generate_data.py
 Output: data/inventory_history.json  (one file, all SKUs)

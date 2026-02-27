@@ -144,7 +144,7 @@ export default function WorkerLayout({
         <div className="flex items-center gap-2">
           <Boxes className="h-5 w-5 text-foreground" />
           <span className="text-lg font-bold uppercase tracking-wide text-foreground">
-            MindForge
+            StockShiftAI
           </span>
         </div>
         <Button

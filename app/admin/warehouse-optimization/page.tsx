@@ -52,7 +52,7 @@ export default function WarehouseOptimizationPage() {
     );
   }
 
-  const formatCurrency = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatCurrency = (val: number) => `₹${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
     <div className="p-6 space-y-6 overflow-auto h-full">

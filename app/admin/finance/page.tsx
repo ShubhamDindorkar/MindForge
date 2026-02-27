@@ -368,7 +368,7 @@ export default function FinancePage() {
                     <XAxis dataKey="month" tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }} />
                     <YAxis
                       tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }}
-                      tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                      tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
                       {...tooltipStyle}
@@ -392,7 +392,7 @@ export default function FinancePage() {
                     <XAxis
                       type="number"
                       tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }}
-                      tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                      tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
                     />
                     <YAxis
                       dataKey="category"
@@ -651,7 +651,7 @@ export default function FinancePage() {
                     <XAxis dataKey="month" tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }} />
                     <YAxis
                       tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }}
-                      tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                      tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
                       {...tooltipStyle}
@@ -813,7 +813,7 @@ export default function FinancePage() {
                   <XAxis dataKey="month" tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }} />
                   <YAxis
                     tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }}
-                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                    tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
                   />
                   <Tooltip
                     {...tooltipStyle}

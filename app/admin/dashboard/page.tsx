@@ -214,7 +214,7 @@ export default function AdminDashboardPage() {
           </div>
           <div className="flex-1">
             <CardTitle className="text-sm font-medium text-foreground flex items-center gap-1.5">
-              MindForge AI Insights
+              StockShiftAI Insights
               <Sparkles className="h-3.5 w-3.5 text-violet-500" />
             </CardTitle>
             {insights?.summary && (
@@ -360,7 +360,7 @@ export default function AdminDashboardPage() {
                     tick={{ fill: "hsl(0, 0%, 55%)", fontSize: 12 }}
                     axisLine={{ stroke: "hsl(0, 0%, 90%)" }}
                     tickLine={false}
-                    tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                    tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`}
                   />
                   <Tooltip
                     contentStyle={{
