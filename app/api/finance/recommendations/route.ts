@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { getInventoryItems, getTransactions } from "@/_lib/finance-analytics";
 import { generateAiLikeRecommendations } from "@/_lib/ai-finance";
 
+const noCacheHeaders = {
+  "Cache-Control": "no-store, no-cache, must-revalidate",
+  Pragma: "no-cache",
+};
+
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const horizonParam = url.searchParams.get("horizon");
@@ -16,9 +23,12 @@ export async function GET(request: Request) {
     horizonDays: horizonDays as 30 | 60 | 90,
   });
 
-  return NextResponse.json({
-    horizonDays,
-    recommendations,
-  });
+  return NextResponse.json(
+    {
+      horizonDays,
+      recommendations,
+    },
+    { headers: noCacheHeaders }
+  );
 }
 
