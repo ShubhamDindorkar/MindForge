@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Shield,
-  ScanLine,
   ArrowLeft,
   Loader2,
 } from "lucide-react";
@@ -13,9 +11,6 @@ import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Label } from "@/_components/ui/label";
 import Link from "next/link";
-import { NavbarLogo } from "@/_components/navbar";
-
-type Role = "admin" | "worker" | null;
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -31,7 +26,6 @@ function GoogleIcon({ className }: { className?: string }) {
 export default function LoginPage() {
   const router = useRouter();
   const { login, loginWithGoogle } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<Role>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -40,22 +34,21 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRole || !email) return;
+    if (!email) return;
 
     setIsLoading(true);
     setError(null);
     await new Promise((r) => setTimeout(r, 800));
-    login(email, password, selectedRole);
-    router.push(selectedRole === "admin" ? "/admin/dashboard" : "/worker");
+    login(email, password, "admin");
+    router.push("/admin/dashboard");
   };
 
   const handleGoogleSignIn = async () => {
-    if (!selectedRole) return;
     setIsGoogleLoading(true);
     setError(null);
     try {
-      await loginWithGoogle(selectedRole);
-      router.push(selectedRole === "admin" ? "/admin/dashboard" : "/worker");
+      await loginWithGoogle("admin");
+      router.push("/admin/dashboard");
     } catch (err: any) {
       setError(err?.message || "Google sign-in failed. Please try again.");
     } finally {
@@ -64,7 +57,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen overflow-hidden bg-background" style={{ fontSize: '1.05rem' }}>
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6" style={{ fontSize: '1.05rem', paddingTop: '10vh', paddingBottom: '10vh' }}>
       {/* Top spotlight gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-0">
         <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100 spotlight-animate" />
@@ -74,165 +67,93 @@ export default function LoginPage() {
         <div className="h-28 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100 spotlight-animate" />
       </div>
 
-      {/* ───── Left side — Logo only (hidden on mobile) ───── */}
-      <div className="relative z-10 hidden w-1/2 flex-col items-center justify-center px-12 lg:px-20 md:flex">
-        <div className="space-y-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to home
-          </Link>
-
-          <NavbarLogo />
-        </div>
-      </div>
-
-      {/* ───── Right side — Auth forms ───── */}
-      <div className="relative z-10 flex w-full flex-col items-center justify-center px-6 py-12 md:w-1/2 md:px-12">
-        {/* Mobile-only back link + logo */}
-        <div className="mb-8 w-full max-w-md text-center md:hidden">
-          <Link
-            href="/"
-            className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to home
-          </Link>
-          <div className="mt-3 flex items-center justify-center">
-            <NavbarLogo />
-          </div>
-        </div>
-
-        <div className="w-full max-w-md space-y-6">
+      {/* ───── Full-height card with sign-in form ───── */}
+      <div className="relative z-10 flex w-full max-w-md flex-1 flex-col justify-center rounded-2xl border border-white/20 bg-card/60 text-card-foreground shadow-lg backdrop-blur-xl">
+        <div className="px-6 py-10 sm:px-8 sm:py-14">
           {/* Heading */}
-          <div>
+          <div className="mb-6">
             <h2 className="text-xl font-medium text-foreground sm:text-2xl">
-              {selectedRole
-                ? `Sign in as ${selectedRole === "admin" ? "Admin" : "Worker"}`
-                : "Welcome back"}
+              Sign in to StockShiftAI
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {selectedRole
-                ? `Enter your credentials to access the ${selectedRole === "admin" ? "dashboard" : "mobile app"}`
-                : "Select your role to continue"}
+              Enter your credentials to access the dashboard
             </p>
           </div>
 
-          {/* Role selection */}
-          {!selectedRole ? (
-            <div className="space-y-3">
-              <button
-                onClick={() => setSelectedRole("admin")}
-                className="group flex w-full items-center gap-4 rounded-xl border bg-card p-4 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring sm:p-5"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  <Shield className="h-6 w-6 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-medium text-foreground">Admin</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Manage inventory, analytics &amp; finances
-                  </p>
-                </div>
-                <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
-              </button>
-
-              <button
-                onClick={() => setSelectedRole("worker")}
-                className="group flex w-full items-center gap-4 rounded-xl border bg-card p-4 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring sm:p-5"
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  <ScanLine className="h-6 w-6 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-medium text-foreground">Worker</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Scan items &amp; update stock levels
-                  </p>
-                </div>
-                <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  {isLoading ? "Signing in..." : "Sign In"}
-                </Button>
-              </form>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    or
-                  </span>
-                </div>
+          {/* Sign-in form */}
+          <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={handleGoogleSignIn}
-                disabled={isGoogleLoading}
-              >
-                {isGoogleLoading ? (
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <GoogleIcon className="mr-2 h-4 w-4" />
-                )}
-                {isGoogleLoading ? "Signing in..." : "Continue with Google"}
+                ) : null}
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
+            </form>
 
-              {error && (
-                <p className="text-center text-sm text-red-500">{error}</p>
-              )}
-
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => {
-                  setSelectedRole(null);
-                  setEmail("");
-                  setPassword("");
-                  setError(null);
-                }}
-              >
-                Choose a different role
-              </Button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  or
+                </span>
+              </div>
             </div>
-          )}
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+            >
+              {isGoogleLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <GoogleIcon className="mr-2 h-4 w-4" />
+              )}
+              {isGoogleLoading ? "Signing in..." : "Continue with Google"}
+            </Button>
+
+            {error && (
+              <p className="text-center text-sm text-red-500">{error}</p>
+            )}
+
+            {/* Back to home */}
+            <div className="pt-2 text-center">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to home
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

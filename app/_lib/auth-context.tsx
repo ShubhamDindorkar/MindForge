@@ -16,8 +16,8 @@ interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, role: "admin" | "worker") => void;
-  loginWithGoogle: (role: "admin" | "worker") => Promise<void>;
+  login: (email: string, password: string, role: "admin") => void;
+  loginWithGoogle: (role: "admin") => Promise<void>;
   logout: () => void;
 }
 
@@ -58,12 +58,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 2. Listen for Firebase auth state (overrides mock user for Google logins)
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        const storedRole = localStorage.getItem(STORAGE_KEY_ROLE) as "admin" | "worker" | null;
+        const storedRole = localStorage.getItem(STORAGE_KEY_ROLE) as "admin" | null;
         const restored: User = {
           id: firebaseUser.uid,
           name: firebaseUser.displayName || "User",
           email: firebaseUser.email || "",
-          role: storedRole || "worker",
+          role: storedRole || "admin",
           avatar: firebaseUser.photoURL || undefined,
         };
         setUser(restored);
@@ -83,10 +83,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    (email: string, _password: string, role: "admin" | "worker") => {
+    (email: string, _password: string, role: "admin") => {
       const mockUser: User = {
-        id: role === "admin" ? "usr-admin-01" : "usr-worker-01",
-        name: role === "admin" ? "Alex Admin" : "Jordan Worker",
+        id: "usr-admin-01",
+        name: "Alex Admin",
         email,
         role,
         avatar: undefined,
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const loginWithGoogle = useCallback(
-    async (role: "admin" | "worker") => {
+    async (role: "admin") => {
       const result = await signInWithPopup(auth, googleProvider);
       const firebaseUser = result.user;
       const u: User = {
