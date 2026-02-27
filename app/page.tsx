@@ -8,7 +8,6 @@ import {
   FileText,
   ArrowRight,
   ChevronRight,
-  Zap,
   Boxes,
 } from "lucide-react";
 import { Button } from "@/_components/ui/button";
@@ -82,19 +81,21 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar>
+        {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems} />
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="flex items-center gap-4">
             <NavbarButton variant="secondary" href="/login">
               Log in
             </NavbarButton>
-            <NavbarButton href="/login">
+            <NavbarButton variant="primary" href="/login">
               Get started
-              <ArrowRight className="ml-2 h-4 w-4" />
             </NavbarButton>
           </div>
         </NavBody>
+
+        {/* Mobile Navigation */}
         <MobileNav>
           <MobileNavHeader>
             <NavbarLogo />
@@ -104,41 +105,40 @@ export default function LandingPage() {
             />
           </MobileNavHeader>
           <MobileNavMenu isOpen={mobileOpen} onClose={() => setMobileOpen(false)}>
-            <div className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <a
-                  key={item.link}
-                  href={item.link}
-                  className="rounded-full px-3 py-2 text-sm text-foreground hover:bg-muted"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {item.name}
-                </a>
-              ))}
-            </div>
-            <div className="mt-3 flex flex-col gap-2">
+            {navItems.map((item, idx) => (
+              <a
+                key={`mobile-link-${idx}`}
+                href={item.link}
+                onClick={() => setMobileOpen(false)}
+                className="relative text-neutral-600"
+              >
+                <span className="block">{item.name}</span>
+              </a>
+            ))}
+            <div className="flex w-full flex-col gap-4">
               <NavbarButton
-                variant="secondary"
+                onClick={() => setMobileOpen(false)}
+                variant="primary"
+                className="w-full"
                 href="/login"
-                className="w-full justify-center"
               >
                 Log in
               </NavbarButton>
-              <NavbarButton href="/login" className="w-full justify-center">
+              <NavbarButton
+                onClick={() => setMobileOpen(false)}
+                variant="primary"
+                className="w-full"
+                href="/login"
+              >
                 Get started
-                <ArrowRight className="ml-2 h-4 w-4" />
               </NavbarButton>
             </div>
           </MobileNavMenu>
         </MobileNav>
       </Navbar>
 
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden -mt-16">
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-sm text-muted-foreground">
-            <Zap className="h-4 w-4 text-primary" />
-            Inventory meets financial intelligence
-          </div>
           <h1 className="mb-6 text-5xl font-medium tracking-tight sm:text-6xl lg:text-7xl text-foreground">
             Streamline Your Inventory.<br />
             Master Your Finances.
