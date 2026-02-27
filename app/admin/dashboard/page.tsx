@@ -214,7 +214,7 @@ export default function AdminDashboardPage() {
           </div>
           <div className="flex-1">
             <CardTitle className="text-sm font-medium text-foreground flex items-center gap-1.5">
-              StockShiftAI Insights
+              MindForge AI Insights
               <Sparkles className="h-3.5 w-3.5 text-violet-500" />
             </CardTitle>
             {insights?.summary && (

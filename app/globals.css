@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Season";
+  src: url("/fonts/SeasonCollectionVF-TRIAL.woff2") format("woff2"),
+       url("/fonts/SeasonCollectionVF-TRIAL.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -69,6 +78,8 @@
     font-family: "Season", sans-serif;
     line-height: 110%;
     letter-spacing: normal;
+    font-feature-settings: "calt" 1;
+    font-variation-settings: "SERF" 100, "ital" 0, "wght" 350;
   }
 }
 

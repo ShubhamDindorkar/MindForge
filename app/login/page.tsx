@@ -64,7 +64,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen overflow-hidden bg-background">
+    <div className="relative flex min-h-screen overflow-hidden bg-background" style={{ fontSize: '1.05rem' }}>
       {/* Top spotlight gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-0">
         <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100 spotlight-animate" />

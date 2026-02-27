@@ -144,7 +144,7 @@ export default function WorkerLayout({
         <div className="flex items-center gap-2">
           <Boxes className="h-5 w-5 text-foreground" />
           <span className="text-lg font-bold uppercase tracking-wide text-foreground">
-            StockShiftAI
+            MindForge
           </span>
         </div>
         <Button
@@ -201,6 +201,8 @@ export default function WorkerLayout({
       className="flex h-screen overflow-hidden text-foreground p-3 gap-3"
       style={{
         background: "linear-gradient(135deg, #B8FFD0 0%, #FFF6C9 100%)",
+        fontFamily: 'var(--font-inter), sans-serif',
+        fontSize: '110%',
       }}
     >
       {/* Mobile overlay */}
