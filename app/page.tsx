@@ -23,7 +23,7 @@ import {
   NavbarButton,
 } from "@/_components/navbar";
 import { useRef, useState } from "react";
-import LiquidEther from "@/_components/LiquidEther";
+import SplashCursor from "./components/SplashCursor";
 
 const features = [
   {
@@ -155,31 +155,7 @@ export default function LandingPage() {
       </Navbar>
 
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden -mt-16">
-        {/* Liquid ether background */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{ width: "100%", height: "100%", minHeight: 600 }}
-        >
-          <LiquidEther
-            colors={["#FDFBF1", "#FFF6C9", "#D8FFE4", "#B8FFD0"]}
-            mouseForce={11}
-            cursorSize={55}
-            isViscous
-            viscous={50}
-            iterationsViscous={47}
-            iterationsPoisson={32}
-            resolution={0.5}
-            isBounce={false}
-            autoDemo
-            autoSpeed={0.5}
-            autoIntensity={2.2}
-            takeoverDuration={0.25}
-            autoResumeDelay={3000}
-            autoRampDuration={0.6}
-            style={{ width: "100%", height: "100%" }}
-          />
-        </div>
-
+        <SplashCursor />
         {/* Top spotlight gradient */}
         <div className="pointer-events-none absolute inset-x-0 top-0">
           <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
