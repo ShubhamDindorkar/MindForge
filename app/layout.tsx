@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/_lib/auth-context";
 import { InventoryProvider } from "@/_lib/inventory-context";
+import { LenisProvider } from "./components/LenisProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.variable}>
-        <AuthProvider>
-          <InventoryProvider>{children}</InventoryProvider>
-        </AuthProvider>
+        <LenisProvider>
+          <AuthProvider>
+            <InventoryProvider>{children}</InventoryProvider>
+          </AuthProvider>
+        </LenisProvider>
       </body>
     </html>
   );

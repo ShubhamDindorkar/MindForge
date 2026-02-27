@@ -79,33 +79,71 @@ const navItems = [
 export default function LandingPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [heroInView, setHeroInView] = useState(true);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0];
+        if (e) setHeroInView(e.intersectionRatio > 0);
+      },
+      { threshold: 0 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    let rafId: number;
+    let lastStep = -1;
+
     const onScroll = () => {
-      const section = sectionRef.current;
-      if (!section) return;
-      const rect = section.getBoundingClientRect();
-      const sectionHeight = section.offsetHeight;
-      const viewHeight = window.innerHeight;
-      if (rect.top > viewHeight) {
-        setScrollProgress(0);
-        return;
-      }
-      const scrolledInto = viewHeight - rect.top;
-      const progress = Math.min(1, Math.max(0, scrolledInto / sectionHeight));
-      setScrollProgress(progress);
+      rafId = requestAnimationFrame(() => {
+        const rect = section.getBoundingClientRect();
+        const sectionHeight = section.offsetHeight;
+        const viewHeight = window.innerHeight;
+        if (rect.top > viewHeight) {
+          if (lastStep !== 0) {
+            lastStep = 0;
+            setScrollProgress(0);
+          }
+          return;
+        }
+        const scrolledInto = viewHeight - rect.top;
+        const progress = Math.min(1, Math.max(0, scrolledInto / sectionHeight));
+        const stepThresholds = [0.4, 0.7];
+        const step = progress < stepThresholds[0] ? 0 : progress < stepThresholds[1] ? 1 : 2;
+        if (step !== lastStep) {
+          lastStep = step;
+          const midProgress = step === 0 ? 0.2 : step === 1 ? 0.55 : 0.85;
+          setScrollProgress(midProgress);
+        }
+      });
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const stepCount = 3;
-  const stepIndex = Math.min(
-    stepCount - 1,
-    Math.floor(scrollProgress * stepCount)
-  );
+  // Give "Capture" more scroll before switching: 40% → Capture, 30% → Sync, 30% → Analyze
+  const stepThresholds = [0.4, 0.7];
+  const stepIndex = (() => {
+    if (scrollProgress < stepThresholds[0]) return 0;
+    if (scrollProgress < stepThresholds[1]) return 1;
+    return 2;
+  })();
 
   return (
     <div className="min-h-screen bg-background">
@@ -166,8 +204,8 @@ export default function LandingPage() {
         </MobileNav>
       </Navbar>
 
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden -mt-16">
-        <SplashCursor />
+      <section ref={heroRef} className="relative flex min-h-screen items-center justify-center overflow-hidden -mt-16">
+        {heroInView && <SplashCursor />}
         {/* Top spotlight gradient */}
         <div className="pointer-events-none absolute inset-x-0 top-0">
           <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100 spotlight-animate" />
@@ -240,7 +278,7 @@ export default function LandingPage() {
           {/* Left: gradient card with stacked scroll-cards.svg */}
           <div className="flex w-full flex-shrink-0 justify-center md:w-[45%] lg:w-[42%]">
             <div
-              className="relative aspect-[4/5] w-full max-w-md rounded-3xl shadow-xl md:aspect-square"
+              className="relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-3xl shadow-xl md:aspect-square"
               style={{
                 background: "linear-gradient(180deg, #B8FFD0 0%, #FFF6C9 45%, #E8EEFF 100%)",
               }}
@@ -248,20 +286,21 @@ export default function LandingPage() {
               {[0, 1, 2].map((layer) => (
                 <div
                   key={layer}
-                  className="absolute inset-0 flex items-center justify-center p-6 transition-all duration-500 ease-out md:p-10"
+                  className="absolute inset-y-0 left-1/2 flex items-center justify-center p-6 transition-all duration-500 ease-out md:p-10"
                   style={{
-                    transform: `translateY(${layer * 28}px)`,
+                    width: "100%",
+                    transform: `translate(-50%, ${layer * 28}px)`,
                     zIndex: 2 - layer,
                     opacity: layer <= stepIndex ? 1 : 0,
-                    filter: layer > 0 ? "drop-shadow(0 4px 12px rgba(0,0,0,0.06))" : "drop-shadow(0 8px 24px rgba(0,0,0,0.08))",
+                    boxShadow: layer > 0 ? "0 4px 12px rgba(0,0,0,0.06)" : "0 8px 24px rgba(0,0,0,0.08)",
                   }}
                 >
                   <img
                     src="/svgs/scroll-cards.svg"
                     alt=""
-                    className="h-auto w-full max-w-[280px] object-contain opacity-95 md:max-w-[320px]"
-                    width={320}
-                    height={155}
+                    className="h-auto w-full max-w-[200px] object-contain opacity-95 md:max-w-[240px]"
+                    width={240}
+                    height={108}
                   />
                 </div>
               ))}
