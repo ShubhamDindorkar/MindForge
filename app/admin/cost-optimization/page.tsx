@@ -175,7 +175,14 @@ export default function CostOptimizationPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {data.recommendations.length === 0 ? (
+          {data.recommendations.length === 0 &&
+          data.skus_overstock.length === 0 &&
+          data.skus_stockout_risk.length === 0 ? (
+            <p className="text-muted-foreground italic">
+              No specific recommendations right now. Your inventory levels look within normal range.
+              Try &quot;Refresh&quot; for a fresh AI analysis or check back after inventory changes.
+            </p>
+          ) : data.recommendations.length === 0 ? (
             <p className="text-muted-foreground italic">No recommendations at this time.</p>
           ) : (
             <div className="space-y-3">

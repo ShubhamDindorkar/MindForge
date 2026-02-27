@@ -77,6 +77,42 @@ def cache_bust(key: str):
         _cache.pop(key, None)
 
 
+def _extract_json(raw: str) -> dict | None:
+    """Try to parse JSON from LLM output that may contain markdown or extra text."""
+    if not raw or not raw.strip():
+        return None
+    cleaned = raw.strip()
+    # Remove markdown code fences
+    if cleaned.startswith("```"):
+        parts = cleaned.split("\n", 1)
+        if len(parts) > 1:
+            cleaned = parts[1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("```", 1)[0]
+        cleaned = cleaned.strip()
+    # Try direct parse first
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        pass
+    # Try to extract first complete {...} object
+    start = cleaned.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    for i in range(start, len(cleaned)):
+        if cleaned[i] == "{":
+            depth += 1
+        elif cleaned[i] == "}":
+            depth -= 1
+            if depth == 0:
+                try:
+                    return json.loads(cleaned[start : i + 1])
+                except json.JSONDecodeError:
+                    return None
+    return None
+
+
 def get_all_sku_stats() -> list[dict]:
     """Fetch metadata + stats for every SKU from Firestore."""
     if not db:
@@ -556,34 +592,56 @@ INVENTORY DATA:
 
     raw = call_llm(SYSTEM_PROMPT, prompt)
     
-    try:
-        cleaned = raw.strip()
-        if cleaned.startswith("```"):
-            cleaned = cleaned.split("\n", 1)[1]
-        if cleaned.endswith("```"):
-            cleaned = cleaned.rsplit("```", 1)[0]
-        cleaned = cleaned.strip()
-        parsed = json.loads(cleaned)
-        cache_set("cost_optimization", parsed)
-        return jsonify(parsed)
-    except json.JSONDecodeError:
-        # Fallback calculation
-        total_capital = sum(s.get("current_stock", 0) * s.get("unit_cost", 0) for s in all_stats)
-        overstock = sum(
-            s.get("current_stock", 0) * s.get("unit_cost", 0)
-            for s in all_stats
-            if s.get("current_stock", 0) > s.get("avg_daily_demand_30d", 1) * 90
-        )
-        return jsonify({
-            "total_capital_locked": round(total_capital, 2),
-            "overstock_capital": round(overstock, 2),
-            "stockout_risk_cost": 0,
-            "holding_cost_monthly": round(total_capital * 0.02, 2),
-            "potential_savings": round(overstock * 0.02, 2),
-            "skus_overstock": [],
-            "skus_stockout_risk": [],
-            "recommendations": []
-        })
+    parsed = _extract_json(raw)
+    if parsed:
+        # Normalize keys for frontend (snake_case) and ensure lists exist
+        total_capital = parsed.get("total_capital_locked")
+        if total_capital is None:
+            total_capital = sum(s.get("current_stock", 0) * s.get("unit_cost", 0) for s in all_stats)
+        overstock = parsed.get("overstock_capital")
+        if overstock is None:
+            overstock = sum(
+                s.get("current_stock", 0) * s.get("unit_cost", 0)
+                for s in all_stats
+                if s.get("current_stock", 0) > (s.get("avg_daily_demand_30d") or 1) * 90
+            )
+        result = {
+            "total_capital_locked": round(float(total_capital or 0), 2),
+            "overstock_capital": round(float(overstock or 0), 2),
+            "stockout_risk_cost": round(float(parsed.get("stockout_risk_cost", 0) or 0), 2),
+            "holding_cost_monthly": round(float(parsed.get("holding_cost_monthly") or (float(total_capital or 0) * 0.02)), 2),
+            "potential_savings": round(float(parsed.get("potential_savings", 0) or 0), 2),
+            "skus_overstock": list(parsed.get("skus_overstock") or []),
+            "skus_stockout_risk": list(parsed.get("skus_stockout_risk") or []),
+            "recommendations": list(parsed.get("recommendations") or []),
+        }
+        # Ensure each recommendation has action, impact, priority
+        for rec in result["recommendations"]:
+            if not isinstance(rec, dict):
+                continue
+            rec.setdefault("action", "")
+            rec.setdefault("impact", "")
+            rec.setdefault("priority", "medium")
+        cache_set("cost_optimization", result)
+        return jsonify(result)
+    
+    # Fallback when LLM response could not be parsed
+    total_capital = sum(s.get("current_stock", 0) * s.get("unit_cost", 0) for s in all_stats)
+    overstock = sum(
+        s.get("current_stock", 0) * s.get("unit_cost", 0)
+        for s in all_stats
+        if s.get("current_stock", 0) > (s.get("avg_daily_demand_30d") or 1) * 90
+    )
+    return jsonify({
+        "total_capital_locked": round(total_capital, 2),
+        "overstock_capital": round(overstock, 2),
+        "stockout_risk_cost": 0,
+        "holding_cost_monthly": round(total_capital * 0.02, 2),
+        "potential_savings": round(overstock * 0.02, 2),
+        "skus_overstock": [],
+        "skus_stockout_risk": [],
+        "recommendations": []
+    })
 
 
 @app.route("/api/scenario-planning", methods=["POST"])
