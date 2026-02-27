@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: yolov8-detector
+    # Optimization: Use Docker for specific system-level dependencies
+    env: docker
+    plan: free
+    region: ohio
+    # These settings are used if you point Render to this folder
+    rootDir: .
+    dockerContext: .
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: PORT
+        value: "10000"
+    healthCheckPath: /health
