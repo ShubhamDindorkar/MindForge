@@ -242,8 +242,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t py-12">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
+      <footer className="relative border-t py-12 overflow-hidden">
+        {/* Bottom spotlight gradient */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0">
+          <div className="h-52 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+        </div>
+
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
           <div className="flex items-center gap-2">
             <Boxes className="h-5 w-5 text-primary" />
             <span className="font-normal">MindForge</span>
