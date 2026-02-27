@@ -158,7 +158,7 @@ export default function LandingPage() {
         <SplashCursor />
         {/* Top spotlight gradient */}
         <div className="pointer-events-none absolute inset-x-0 top-0">
-          <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+          <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100 spotlight-animate" />
         </div>
 
         <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6">
@@ -441,7 +441,7 @@ export default function LandingPage() {
       <footer className="relative border-t py-12 overflow-hidden">
         {/* Bottom spotlight gradient */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0">
-          <div className="h-52 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+          <div className="h-52 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100 spotlight-animate" />
         </div>
 
         <div className="relative mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">

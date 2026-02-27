@@ -82,3 +82,19 @@
     font-variation-settings: "SERF" 100, "ital" 0, "wght" 350;
   }
 }
+
+/* Spotlight gradient intro animation */
+.spotlight-animate {
+  animation: spotlight-in 1400ms ease-out forwards;
+}
+
+@keyframes spotlight-in {
+  from {
+    opacity: 0;
+    transform: scaleY(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}

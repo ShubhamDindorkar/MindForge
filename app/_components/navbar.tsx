@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { cn } from "@/_lib/utils";
+import { Boxes } from "lucide-react";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import {
   motion,
@@ -235,10 +236,10 @@ export const NavbarLogo = () => {
       href="/"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
-      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border text-xs font-medium">
-        MF
+      <Boxes className="h-5 w-5 text-foreground" />
+      <span className="text-lg font-bold uppercase tracking-wide text-foreground">
+        MindForge
       </span>
-      <span className="font-medium text-black">MindForge</span>
     </a>
   );
 };

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   Shield,
   ScanLine,
-  Boxes,
   ArrowLeft,
   Loader2,
 } from "lucide-react";
@@ -14,6 +13,7 @@ import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Label } from "@/_components/ui/label";
 import Link from "next/link";
+import { NavbarLogo } from "@/_components/navbar";
 
 type Role = "admin" | "worker" | null;
 
@@ -67,11 +67,11 @@ export default function LoginPage() {
     <div className="relative flex min-h-screen overflow-hidden bg-background" style={{ fontSize: '1.05rem' }}>
       {/* Top spotlight gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-0">
-        <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+        <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100 spotlight-animate" />
       </div>
       {/* Bottom spotlight gradient — shorter */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0">
-        <div className="h-28 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+        <div className="h-28 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100 spotlight-animate" />
       </div>
 
       {/* ───── Left side — Logo only (hidden on mobile) ───── */}
@@ -85,12 +85,7 @@ export default function LoginPage() {
             Back to home
           </Link>
 
-          <div className="flex items-center gap-3">
-            <Boxes className="h-12 w-12 text-primary" />
-            <span className="text-4xl font-bold uppercase tracking-wide text-foreground">
-              MindForge
-            </span>
-          </div>
+          <NavbarLogo />
         </div>
       </div>
 
@@ -105,11 +100,8 @@ export default function LoginPage() {
             <ArrowLeft className="h-4 w-4" />
             Back to home
           </Link>
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <Boxes className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold uppercase tracking-wide text-foreground">
-              MindForge
-            </span>
+          <div className="mt-3 flex items-center justify-center">
+            <NavbarLogo />
           </div>
         </div>
 
