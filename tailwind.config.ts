@@ -7,8 +7,8 @@ const config: Config = {
   	extend: {
   		fontFamily: {
   			sans: [
-  				'Season"',
-  				'sans-serif'
+  				"Season",
+  				"sans-serif"
   			]
   		},
   		colors: {
