@@ -3,6 +3,7 @@ import {
   Transaction,
   FinancialSummary,
   CategorySpending,
+  CostEntry,
 } from "./types";
 
 export const CATEGORIES = [
@@ -198,6 +199,85 @@ export const transactions: Transaction[] = [
   { id: "txn-010", itemId: "inv-009", itemName: "Bubble Wrap Roll 12in", type: "out", quantity: 25, date: "2026-02-20T10:30:00Z", performedBy: "John Worker" },
 ];
 
+export const costEntries: CostEntry[] = [
+  {
+    id: "cost-001",
+    date: "2026-02-01T09:00:00Z",
+    category: "Inventory",
+    amount: 18500,
+    description: "Bulk purchase of electronics components",
+    relatedItemId: "inv-001",
+  },
+  {
+    id: "cost-002",
+    date: "2026-02-03T10:30:00Z",
+    category: "Raw Materials",
+    amount: 24200,
+    description: "Aluminum sheets and copper wire restock",
+    relatedItemId: "inv-002",
+  },
+  {
+    id: "cost-003",
+    date: "2026-02-05T14:15:00Z",
+    category: "Office Supplies",
+    amount: 3800,
+    description: "Paper, markers, and general office consumables",
+    relatedItemId: "inv-003",
+  },
+  {
+    id: "cost-004",
+    date: "2026-02-08T11:45:00Z",
+    category: "Tools & Equipment",
+    amount: 8900,
+    description: "New drill sets and safety tooling",
+    relatedItemId: "inv-004",
+  },
+  {
+    id: "cost-005",
+    date: "2026-02-10T16:20:00Z",
+    category: "Packaging",
+    amount: 5600,
+    description: "Restock of cardboard boxes and bubble wrap",
+    relatedItemId: "inv-005",
+  },
+  {
+    id: "cost-006",
+    date: "2026-02-12T13:10:00Z",
+    category: "Safety Gear",
+    amount: 4200,
+    description: "Protective gear for shop floor workers",
+    relatedItemId: "inv-006",
+  },
+  {
+    id: "cost-007",
+    date: "2026-02-15T08:30:00Z",
+    category: "Rent",
+    amount: 12000,
+    description: "Monthly warehouse rent",
+  },
+  {
+    id: "cost-008",
+    date: "2026-02-15T09:00:00Z",
+    category: "Salaries",
+    amount: 38000,
+    description: "Monthly payroll for staff",
+  },
+  {
+    id: "cost-009",
+    date: "2026-02-18T10:00:00Z",
+    category: "Utilities",
+    amount: 5200,
+    description: "Electricity, water, and internet",
+  },
+  {
+    id: "cost-010",
+    date: "2026-02-20T15:30:00Z",
+    category: "Marketing",
+    amount: 6400,
+    description: "Promotional campaigns for Q1",
+  },
+];
+
 export const financialSummaries: FinancialSummary[] = [
   { month: "Sep 2025", revenue: 42500, costs: 28900, profit: 13600, itemsSold: 1240, itemsPurchased: 890 },
   { month: "Oct 2025", revenue: 51200, costs: 33100, profit: 18100, itemsSold: 1580, itemsPurchased: 1100 },
@@ -208,12 +288,16 @@ export const financialSummaries: FinancialSummary[] = [
 ];
 
 export const categorySpending: CategorySpending[] = [
-  { category: "Electronics", amount: 18500, budget: 20000 },
+  { category: "Inventory", amount: 18500, budget: 20000 },
   { category: "Raw Materials", amount: 24200, budget: 22000 },
   { category: "Office Supplies", amount: 3800, budget: 5000 },
   { category: "Tools & Equipment", amount: 8900, budget: 10000 },
   { category: "Packaging", amount: 5600, budget: 6000 },
   { category: "Safety Gear", amount: 4200, budget: 5000 },
+  { category: "Rent", amount: 12000, budget: 12000 },
+  { category: "Salaries", amount: 38000, budget: 40000 },
+  { category: "Utilities", amount: 5200, budget: 6000 },
+  { category: "Marketing", amount: 6400, budget: 8000 },
 ];
 
 export const forecastData = [

@@ -1,12 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import {
-  financialSummaries,
-  categorySpending,
-  forecastData,
-  inventoryItems,
-} from "@/_lib/mock-data";
+import { useState, useMemo, useEffect } from "react";
+import { financialSummaries, categorySpending, forecastData, inventoryItems } from "@/_lib/mock-data";
 import { formatCurrency } from "@/_lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/_components/ui/tabs";
 import {
@@ -42,7 +37,10 @@ import {
   PiggyBank,
   Calculator,
   Target,
+  Sparkles,
 } from "lucide-react";
+import type { AiRecommendation, CostEntry, YearlyForecastSummary } from "@/_lib/types";
+import { formatDate } from "@/_lib/utils";
 
 const CHART_COLORS = [
   "hsl(217, 91%, 60%)",
@@ -65,6 +63,80 @@ const tooltipStyle = {
 
 export default function FinancePage() {
   const [growthRate, setGrowthRate] = useState(10);
+  const [recommendations, setRecommendations] = useState<AiRecommendation[]>([]);
+  const [recommendationHorizon, setRecommendationHorizon] = useState<30 | 60 | 90>(30);
+  const [recLoading, setRecLoading] = useState(false);
+  const [recError, setRecError] = useState<string | null>(null);
+
+  const [costEntries, setCostEntries] = useState<CostEntry[]>([]);
+  const [costsLoading, setCostsLoading] = useState(false);
+  const [costsError, setCostsError] = useState<string | null>(null);
+
+  const [yearlySummary, setYearlySummary] = useState<YearlyForecastSummary | null>(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+  const [forecastError, setForecastError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setRecLoading(true);
+    setRecError(null);
+    fetch(`/api/finance/recommendations?horizon=${recommendationHorizon}`, {
+      signal: controller.signal,
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load recommendations");
+        const data = await res.json();
+        setRecommendations(data.recommendations ?? []);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          setRecError("Could not load recommendations right now.");
+        }
+      })
+      .finally(() => setRecLoading(false));
+
+    return () => controller.abort();
+  }, [recommendationHorizon]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setCostsLoading(true);
+    setCostsError(null);
+    fetch("/api/finance/costs", { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load costs");
+        const data = await res.json();
+        setCostEntries(data.costs ?? []);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          setCostsError("Could not load cost entries right now.");
+        }
+      })
+      .finally(() => setCostsLoading(false));
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setForecastLoading(true);
+    setForecastError(null);
+    fetch("/api/finance/forecast", { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load forecast");
+        const data = await res.json();
+        setYearlySummary(data.yearly ?? null);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          setForecastError("Could not load yearly P&L forecast right now.");
+        }
+      })
+      .finally(() => setForecastLoading(false));
+
+    return () => controller.abort();
+  }, []);
 
   const topExpensiveItems = useMemo(
     () =>
@@ -149,8 +221,15 @@ export default function FinancePage() {
         </p>
       </div>
 
-      <Tabs defaultValue="costs" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 max-w-lg">
+      <Tabs defaultValue="recommendations" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4 max-w-3xl">
+          <TabsTrigger
+            value="recommendations"
+            className="gap-1 sm:gap-2 text-xs sm:text-sm"
+          >
+            <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">AI</span> Recs
+          </TabsTrigger>
           <TabsTrigger value="costs" className="gap-1 sm:gap-2 text-xs sm:text-sm">
             <Calculator className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Cost</span> Tracking
@@ -165,7 +244,114 @@ export default function FinancePage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* ── Tab 1: Cost Tracking ── */}
+        {/* ── Tab 1: AI Recommendations ── */}
+        <TabsContent value="recommendations" className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  AI-Style Stock Recommendations
+                </CardTitle>
+                <CardDescription>
+                  Suggested stock levels based on recent demand, seasonality, and horizon.
+                </CardDescription>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Planning horizon (days)</p>
+                <div className="inline-flex rounded-md border bg-background p-0.5 text-xs">
+                  {[30, 60, 90].map((h) => (
+                    <button
+                      key={h}
+                      type="button"
+                      onClick={() => setRecommendationHorizon(h as 30 | 60 | 90)}
+                      className={`px-2 py-1 rounded-sm ${
+                        recommendationHorizon === h
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {h}d
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {recLoading && (
+                <p className="text-sm text-muted-foreground">Loading recommendations…</p>
+              )}
+              {recError && (
+                <p className="text-sm text-destructive">{recError}</p>
+              )}
+              {!recLoading && !recError && recommendations.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No recommendations are available yet. Try again in a moment.
+                </p>
+              )}
+              {!recLoading && !recError && recommendations.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-muted-foreground">
+                        <th className="text-left py-3 pr-4 font-medium">Item</th>
+                        <th className="text-left py-3 pr-4 font-medium">Horizon</th>
+                        <th className="text-right py-3 pr-4 font-medium">Current</th>
+                        <th className="text-right py-3 pr-4 font-medium">Recommended</th>
+                        <th className="text-right py-3 pr-4 font-medium">% Change</th>
+                        <th className="text-left py-3 pr-4 font-medium">Confidence</th>
+                        <th className="text-left py-3 font-medium">Why</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recommendations.map((rec) => (
+                        <tr key={rec.id} className="border-b last:border-0 align-top">
+                          <td className="py-3 pr-4 font-medium">{rec.itemName}</td>
+                          <td className="py-3 pr-4 text-xs text-muted-foreground">
+                            {rec.timeHorizon}
+                          </td>
+                          <td className="py-3 pr-4 text-right tabular-nums">
+                            {rec.currentStock}
+                          </td>
+                          <td className="py-3 pr-4 text-right tabular-nums">
+                            {rec.recommendedStock}
+                          </td>
+                          <td
+                            className={`py-3 pr-4 text-right tabular-nums ${
+                              rec.changePercent >= 0 ? "text-primary" : "text-destructive"
+                            }`}
+                          >
+                            {rec.changePercent > 0 ? "+" : ""}
+                            {rec.changePercent}%
+                          </td>
+                          <td className="py-3 pr-4">
+                            <Badge
+                              variant={
+                                rec.confidence === "high"
+                                  ? "success"
+                                  : rec.confidence === "medium"
+                                    ? "warning"
+                                    : "outline"
+                              }
+                            >
+                              {rec.confidence.charAt(0).toUpperCase() +
+                                rec.confidence.slice(1)}
+                            </Badge>
+                          </td>
+                          <td className="py-3 text-xs text-muted-foreground max-w-md">
+                            {rec.rationale}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab 2: Cost Tracking ── */}
         <TabsContent value="costs" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
@@ -285,6 +471,60 @@ export default function FinancePage() {
 
           <Card>
             <CardHeader>
+              <CardTitle className="text-lg">Recent Cost Entries</CardTitle>
+              <CardDescription>
+                Detailed list of recent costs across categories
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {costsLoading && (
+                <p className="text-sm text-muted-foreground">Loading cost entries…</p>
+              )}
+              {costsError && (
+                <p className="text-sm text-destructive">{costsError}</p>
+              )}
+              {!costsLoading && !costsError && costEntries.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No cost entries are available yet.
+                </p>
+              )}
+              {!costsLoading && !costsError && costEntries.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-muted-foreground">
+                        <th className="text-left py-3 pr-4 font-medium">Date</th>
+                        <th className="text-left py-3 pr-4 font-medium">Category</th>
+                        <th className="text-left py-3 pr-4 font-medium">Description</th>
+                        <th className="text-right py-3 font-medium">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {costEntries.map((c) => (
+                        <tr key={c.id} className="border-b last:border-0">
+                          <td className="py-3 pr-4 text-xs text-muted-foreground">
+                            {formatDate(c.date)}
+                          </td>
+                          <td className="py-3 pr-4">
+                            <Badge variant="outline">{c.category}</Badge>
+                          </td>
+                          <td className="py-3 pr-4 max-w-md">
+                            {c.description ?? "-"}
+                          </td>
+                          <td className="py-3 text-right tabular-nums font-medium">
+                            {formatCurrency(c.amount)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-lg">Top 5 Most Expensive Items</CardTitle>
               <CardDescription>
                 Ranked by total inventory value (unit cost &times; quantity)
@@ -331,7 +571,7 @@ export default function FinancePage() {
           </Card>
         </TabsContent>
 
-        {/* ── Tab 2: Profit & Loss ── */}
+        {/* ── Tab 3: Profit & Loss ── */}
         <TabsContent value="pnl" className="space-y-6">
           <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
             <Card>
@@ -555,7 +795,7 @@ export default function FinancePage() {
           </Card>
         </TabsContent>
 
-        {/* ── Tab 3: Forecasting ── */}
+        {/* ── Tab 4: Forecasting ── */}
         <TabsContent value="forecast" className="space-y-6">
           <Card>
             <CardHeader>

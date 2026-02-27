@@ -41,10 +41,39 @@ export interface FinancialSummary {
   itemsPurchased: number;
 }
 
+export interface CostEntry {
+  id: string;
+  date: string;
+  category: string;
+  amount: number;
+  description?: string;
+  relatedItemId?: string;
+}
+
 export interface CategorySpending {
   category: string;
   amount: number;
   budget: number;
+}
+
+export interface AiRecommendation {
+  id: string;
+  itemId: string;
+  itemName: string;
+  currentStock: number;
+  recommendedStock: number;
+  changePercent: number;
+  rationale: string;
+  timeHorizon: "30d" | "60d" | "90d";
+  confidence: "low" | "medium" | "high";
+  createdAt: string;
+}
+
+export interface YearlyForecastSummary {
+  year: number;
+  totalRevenue: number;
+  totalCosts: number;
+  totalProfit: number;
 }
 
 export interface ReportConfig {
