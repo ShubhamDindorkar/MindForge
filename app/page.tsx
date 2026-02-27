@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   Package,
-  ScanLine,
   BarChart3,
   FileText,
   ArrowRight,
@@ -31,12 +30,6 @@ const features = [
     title: "Inventory Tracking",
     description:
       "Real-time stock levels across all warehouses. Know exactly what you have and where it is.",
-  },
-  {
-    icon: ScanLine,
-    title: "QR Code Scanning",
-    description:
-      "Workers scan items instantly with their phones. Stock in, stock out, zero friction.",
   },
   {
     icon: BarChart3,
@@ -218,8 +211,7 @@ export default function LandingPage() {
           </h1>
           <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground sm:mb-10 sm:text-lg">
             The all-in-one platform that connects warehouse operations to financial
-            planning. Track stock, scan QR codes, and see your bottom line - all
-            in one place.
+            planning. Track stock and see your bottom line - all in one place.
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/login">
