@@ -13,6 +13,9 @@ import {
   Settings,
   Boxes,
   ChevronUp,
+  DollarSign,
+  Target,
+  Warehouse,
 } from "lucide-react";
 import { useAuth } from "@/_lib/auth-context";
 import { cn } from "@/_lib/utils";
@@ -37,6 +40,14 @@ const sidebarSections = [
       { label: "Inventory", href: "/admin/inventory", icon: Package },
       { label: "Finance", href: "/admin/finance", icon: TrendingUp },
       { label: "Reports", href: "/admin/reports", icon: FileText },
+    ],
+  },
+  {
+    title: "AI Tools",
+    items: [
+      { label: "Cost Optimization", href: "/admin/cost-optimization", icon: DollarSign },
+      { label: "Scenario Planning", href: "/admin/scenario-planning", icon: Target },
+      { label: "Warehouse Optimization", href: "/admin/warehouse-optimization", icon: Warehouse },
     ],
   },
 ];
@@ -223,6 +234,8 @@ export default function AdminLayout({
       className="flex h-screen overflow-hidden text-foreground p-3 gap-3"
       style={{
         background: "linear-gradient(135deg, #B8FFD0 0%, #FFF6C9 100%)",
+        fontFamily: 'var(--font-inter), sans-serif',
+        fontSize: '110%',
       }}
     >
       {/* Mobile overlay */}

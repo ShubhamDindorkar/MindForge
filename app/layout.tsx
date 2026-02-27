@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/_lib/auth-context";
 import { InventoryProvider } from "@/_lib/inventory-context";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "MindForge - Inventory Management",
@@ -15,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={inter.variable}>
         <AuthProvider>
           <InventoryProvider>{children}</InventoryProvider>
         </AuthProvider>

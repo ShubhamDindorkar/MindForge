@@ -162,8 +162,9 @@ def call_llm(system_prompt: str, user_prompt: str) -> str:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            temperature=0.3,
-            max_tokens=2000,
+            temperature=0.1,  # Lower for faster, more deterministic responses
+            max_tokens=1000,  # Reduced for speed
+            timeout=25,  # 25 second timeout
         )
         return response.choices[0].message.content or ""
     except Exception as e:
@@ -472,6 +473,242 @@ USER QUESTION: {question}"""
             "answer": raw or "Unable to process your question.",
             "relevant_skus": [],
             "suggested_actions": [],
+        })
+
+
+@app.route("/api/cost-optimization", methods=["GET"])
+def cost_optimization():
+    """Calculate financial impact of current inventory state and AI recommendations."""
+    all_stats = get_all_sku_stats()
+    
+    context = build_all_skus_context(all_stats)
+    
+    prompt = f"""Analyze the inventory data and calculate the financial impact.
+
+Calculate and return in JSON format ONLY (no markdown):
+{{
+  "total_capital_locked": <total value of current stock at unit_cost>,
+  "overstock_capital": <value locked in overstock items (where current_stock > 90 days of avg_daily_demand_30d)>,
+  "stockout_risk_cost": <estimated lost sales from items with days_until_stockout < 14 (qty_needed × sell_price)>,
+  "holding_cost_monthly": <estimated monthly holding cost (2% of total inventory value as industry standard)>,
+  "potential_savings": <sum of overstock_capital × 0.02 (monthly holding cost)>,
+  "skus_overstock": [list of SKU codes that are overstocked],
+  "skus_stockout_risk": [list of SKU codes at stockout risk],
+  "recommendations": [
+    {{
+      "action": "description",
+      "impact": "cost savings or revenue protection amount",
+      "priority": "high|medium|low"
+    }}
+  ]
+}}
+
+INVENTORY DATA:
+{context}"""
+
+    raw = call_llm(SYSTEM_PROMPT, prompt)
+    
+    try:
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("```", 1)[0]
+        cleaned = cleaned.strip()
+        parsed = json.loads(cleaned)
+        return jsonify(parsed)
+    except json.JSONDecodeError:
+        # Fallback calculation
+        total_capital = sum(s.get("current_stock", 0) * s.get("unit_cost", 0) for s in all_stats)
+        overstock = sum(
+            s.get("current_stock", 0) * s.get("unit_cost", 0)
+            for s in all_stats
+            if s.get("current_stock", 0) > s.get("avg_daily_demand_30d", 1) * 90
+        )
+        return jsonify({
+            "total_capital_locked": round(total_capital, 2),
+            "overstock_capital": round(overstock, 2),
+            "stockout_risk_cost": 0,
+            "holding_cost_monthly": round(total_capital * 0.02, 2),
+            "potential_savings": round(overstock * 0.02, 2),
+            "skus_overstock": [],
+            "skus_stockout_risk": [],
+            "recommendations": []
+        })
+
+
+@app.route("/api/scenario-planning", methods=["POST"])
+def scenario_planning():
+    """Run 'what-if' scenarios on inventory parameters."""
+    body = request.get_json()
+    
+    demand_modifier = body.get("demand_modifier", 1.0)  # e.g., 1.3 = 30% increase
+    lead_time_modifier = body.get("lead_time_modifier", 1.0)
+    safety_stock_modifier = body.get("safety_stock_modifier", 1.0)
+    
+    all_stats = get_all_sku_stats()
+    context = build_all_skus_context(all_stats)
+    
+    prompt = f"""Run a scenario analysis with these parameters:
+- Demand modifier: {demand_modifier}x (1.0 = no change, 1.3 = 30% increase)
+- Lead time modifier: {lead_time_modifier}x
+- Safety stock modifier: {safety_stock_modifier}x
+
+For each SKU, calculate:
+1. New projected demand
+2. New days_until_stockout
+3. New reorder point
+4. Comparison vs current state
+
+Return ONLY valid JSON (no markdown):
+{{
+  "scenario_summary": {{
+    "demand_change_pct": <percentage>,
+    "lead_time_change_pct": <percentage>,
+    "safety_stock_change_pct": <percentage>
+  }},
+  "skus": [
+    {{
+      "sku": "SKU-CODE",
+      "name": "Item name",
+      "current": {{
+        "avg_daily_demand": <number>,
+        "days_until_stockout": <number>,
+        "reorder_point": <number>
+      }},
+      "projected": {{
+        "avg_daily_demand": <number>,
+        "days_until_stockout": <number>,
+        "reorder_point": <number>
+      }},
+      "impact": "positive|negative|neutral",
+      "action_needed": "description"
+    }}
+  ],
+  "overall_impact": {{
+    "stockouts_prevented": <count>,
+    "new_stockout_risks": <count>,
+    "capital_change": <dollar amount>
+  }}
+}}
+
+CURRENT INVENTORY DATA:
+{context}"""
+
+    raw = call_llm(SYSTEM_PROMPT, prompt)
+    
+    try:
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("```", 1)[0]
+        cleaned = cleaned.strip()
+        parsed = json.loads(cleaned)
+        return jsonify(parsed)
+    except json.JSONDecodeError:
+        return jsonify({
+            "scenario_summary": {
+                "demand_change_pct": (demand_modifier - 1) * 100,
+                "lead_time_change_pct": (lead_time_modifier - 1) * 100,
+                "safety_stock_change_pct": (safety_stock_modifier - 1) * 100
+            },
+            "skus": [],
+            "overall_impact": {
+                "stockouts_prevented": 0,
+                "new_stockout_risks": 0,
+                "capital_change": 0
+            }
+        })
+
+
+@app.route("/api/warehouse-optimization", methods=["GET"])
+def warehouse_optimization():
+    """Detect stock imbalances across warehouses and recommend transfers."""
+    all_stats = get_all_sku_stats()
+    
+    # Group by location
+    by_location = {}
+    for s in all_stats:
+        loc = s.get("location", "Unknown")
+        if loc not in by_location:
+            by_location[loc] = []
+        by_location[loc].append(s)
+    
+    context = build_all_skus_context(all_stats)
+    location_summary = "\n".join([
+        f"{loc}: {len(items)} SKUs, total stock value: ${sum(i.get('current_stock', 0) * i.get('unit_cost', 0) for i in items):.2f}"
+        for loc, items in by_location.items()
+    ])
+    
+    prompt = f"""Analyze inventory distribution across warehouses and recommend transfers.
+
+WAREHOUSE SUMMARY:
+{location_summary}
+
+DETAILED INVENTORY DATA:
+{context}
+
+Identify:
+1. SKUs with stock imbalance (overstock in one location, stockout risk in another)
+2. Recommended inter-warehouse transfers
+3. Cost-benefit analysis of transfers vs stockouts
+
+Return ONLY valid JSON (no markdown):
+{{
+  "warehouses": [
+    {{
+      "location": "Warehouse Name",
+      "total_skus": <count>,
+      "total_value": <dollar amount>,
+      "overstock_items": <count>,
+      "stockout_risk_items": <count>
+    }}
+  ],
+  "transfer_recommendations": [
+    {{
+      "sku": "SKU-CODE",
+      "name": "Item name",
+      "from_location": "source warehouse",
+      "to_location": "destination warehouse",
+      "qty_to_transfer": <number>,
+      "reason": "explanation",
+      "transfer_cost_estimate": <dollar amount>,
+      "stockout_cost_prevented": <dollar amount>,
+      "net_benefit": <dollar amount>,
+      "priority": "high|medium|low"
+    }}
+  ],
+  "network_health_score": <0-100, where 100=perfect balance>,
+  "total_transfer_savings": <total net benefit of all transfers>
+}}"""
+
+    raw = call_llm(SYSTEM_PROMPT, prompt)
+    
+    try:
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[1]
+        if cleaned.endswith("```"):
+            cleaned = cleaned.rsplit("```", 1)[0]
+        cleaned = cleaned.strip()
+        parsed = json.loads(cleaned)
+        return jsonify(parsed)
+    except json.JSONDecodeError:
+        return jsonify({
+            "warehouses": [
+                {
+                    "location": loc,
+                    "total_skus": len(items),
+                    "total_value": sum(i.get("current_stock", 0) * i.get("unit_cost", 0) for i in items),
+                    "overstock_items": 0,
+                    "stockout_risk_items": 0
+                }
+                for loc, items in by_location.items()
+            ],
+            "transfer_recommendations": [],
+            "network_health_score": 50,
+            "total_transfer_savings": 0
         })
 
 

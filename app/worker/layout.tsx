@@ -201,6 +201,8 @@ export default function WorkerLayout({
       className="flex h-screen overflow-hidden text-foreground p-3 gap-3"
       style={{
         background: "linear-gradient(135deg, #B8FFD0 0%, #FFF6C9 100%)",
+        fontFamily: 'var(--font-inter), sans-serif',
+        fontSize: '110%',
       }}
     >
       {/* Mobile overlay */}
