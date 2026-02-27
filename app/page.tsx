@@ -55,18 +55,18 @@ const features = [
 const steps = [
   {
     number: "01",
-    title: "Scan",
-    description: "Workers scan QR codes on inventory items using the mobile app.",
+    title: "Capture",
+    description: "Record inventory movements and updates directly in the system.",
   },
   {
     number: "02",
-    title: "Track",
-    description: "Every movement is logged. Stock levels update automatically.",
+    title: "Sync",
+    description: "Stock levels and costs stay in sync across all warehouses.",
   },
   {
     number: "03",
     title: "Analyze",
-    description: "Admins see dashboards, financials, and forecasts in real time.",
+    description: "See real-time dashboards, financials, and forecasts in one place.",
   },
 ];
 
