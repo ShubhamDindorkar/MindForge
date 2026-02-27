@@ -1,7 +1,7 @@
 import io
 import torch
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from PIL import Image
 from ultralytics import YOLO
 
@@ -15,6 +15,81 @@ try:
 except Exception as e:
     print(f"Critical Error: Could not load model: {e}")
     model = None
+
+@app.get("/", response_class=HTMLResponse)
+async def index():
+    """Serves a simple UI to capture a photo from the camera."""
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>YOLOv8 Camera Detection</title>
+        <style>
+            body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
+            #container { max-width: 640px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            video, canvas { width: 100%; border-radius: 5px; margin-bottom: 10px; }
+            button { padding: 12px 24px; font-size: 16px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+            button:disabled { background: #ccc; }
+            #results { text-align: left; margin-top: 20px; padding: 10px; background: #eee; border-radius: 5px; font-family: monospace; white-space: pre-wrap; word-wrap: break-word; }
+            .preview-container { position: relative; }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <h1>YOLOv8 Nano Detector</h1>
+            <div class="preview-container">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas" style="display:none;"></canvas>
+            </div>
+            <button id="capture">Capture & Detect</button>
+            <h3>Results:</h3>
+            <div id="results">Waiting for capture...</div>
+        </div>
+
+        <script>
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const captureButton = document.getElementById('capture');
+            const resultsDiv = document.getElementById('results');
+
+            // Request camera access
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => { video.srcObject = stream; })
+                .catch(err => { 
+                    resultsDiv.innerText = "Error accessing camera: " + err;
+                    captureButton.disabled = true;
+                });
+
+            captureButton.onclick = async () => {
+                const context = canvas.getContext('2d');
+                // Use original video dimensions
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Convert canvas to blob
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append('file', blob, 'capture.jpg');
+
+                    resultsDiv.innerText = "Detecting...";
+                    
+                    try {
+                        const response = await fetch('/predict', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await response.json();
+                        resultsDiv.innerText = JSON.stringify(data, null, 2);
+                    } catch (err) {
+                        resultsDiv.innerText = "Error: " + err;
+                    }
+                }, 'image/jpeg');
+            };
+        </script>
+    </body>
+    </html>
+    """
 
 @app.get("/health")
 async def health_check():
