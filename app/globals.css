@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Season Mix";
+  src: url("./fonts/SeasonMix.woff2") format("woff2"),
+       url("./fonts/SeasonMix.woff") format("woff"),
+       url("./fonts/SeasonMix.otf") format("opentype"),
+       url("./fonts/SeasonMix.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -69,5 +80,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Season Mix", sans-serif;
+    font-weight: 400;
+    line-height: 75.6px;
+    letter-spacing: -1.8px;
   }
 }
