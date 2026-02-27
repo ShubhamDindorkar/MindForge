@@ -143,12 +143,12 @@ export default function LandingPage() {
           <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-          <h1 className="mb-6 text-5xl font-medium tracking-tight sm:text-6xl lg:text-7xl text-foreground">
+        <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6">
+          <h1 className="mb-4 text-3xl font-medium tracking-tight sm:mb-6 sm:text-5xl lg:text-7xl text-foreground">
             Streamline Your Inventory.<br />
             Master Your Finances.
           </h1>
-          <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
+          <p className="mx-auto mb-8 max-w-2xl text-base text-muted-foreground sm:mb-10 sm:text-lg">
             The all-in-one platform that connects warehouse operations to financial
             planning. Track stock, scan QR codes, and see your bottom line - all
             in one place.
@@ -178,7 +178,7 @@ export default function LandingPage() {
               From the loading dock to the boardroom. One platform, total visibility.
             </p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature) => (
               <div
                 key={feature.title}

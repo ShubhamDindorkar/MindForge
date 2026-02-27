@@ -232,21 +232,21 @@ export default function InventoryPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-3">
-        <div className="rounded-xl bg-blue-50 p-2.5">
-          <Package className="h-6 w-6 text-blue-600" />
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="rounded-xl bg-blue-50 p-2 sm:p-2.5">
+          <Package className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-medium tracking-tight">Inventory</h1>
+          <h1 className="text-xl font-medium tracking-tight sm:text-2xl">Inventory</h1>
           <p className="text-sm text-muted-foreground">
             Manage your stock items, quantities, and details.
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 items-center gap-3">
-          <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-1 sm:flex-row sm:items-center">
+          <div className="relative flex-1 sm:max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search by name or SKU..."
@@ -265,7 +265,7 @@ export default function InventoryPage() {
               setPage(1);
             }}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -432,7 +432,7 @@ export default function InventoryPage() {
           </DialogHeader>
 
           <div className="grid gap-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="item-name">Name</Label>
                 <Input
@@ -476,7 +476,7 @@ export default function InventoryPage() {
               </Select>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="item-qty">Quantity</Label>
                 <Input
@@ -526,7 +526,7 @@ export default function InventoryPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="item-reorder">Reorder Point</Label>
                 <Input

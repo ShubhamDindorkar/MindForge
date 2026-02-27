@@ -15,6 +15,7 @@ import { User } from "./types";
 interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (email: string, password: string, role: "admin" | "worker") => void;
   loginWithGoogle: (role: "admin" | "worker") => Promise<void>;
   logout: () => void;
@@ -22,25 +23,63 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const STORAGE_KEY_USER = "mindforge_user";
+const STORAGE_KEY_ROLE = "mindforge_role";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Listen to Firebase auth state changes
+  // Persist user to localStorage whenever it changes
+  const persistUser = useCallback((u: User | null) => {
+    setUser(u);
+    if (u) {
+      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(u));
+      localStorage.setItem(STORAGE_KEY_ROLE, u.role);
+    } else {
+      localStorage.removeItem(STORAGE_KEY_USER);
+      localStorage.removeItem(STORAGE_KEY_ROLE);
+    }
+  }, []);
+
+  // On mount: restore user from localStorage, then listen to Firebase auth
   useEffect(() => {
+    // 1. Try restoring mock user from localStorage
+    const stored = localStorage.getItem(STORAGE_KEY_USER);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as User;
+        setUser(parsed);
+      } catch {
+        localStorage.removeItem(STORAGE_KEY_USER);
+      }
+    }
+
+    // 2. Listen for Firebase auth state (overrides mock user for Google logins)
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        // Restore user from Firebase session (default role if not in state)
-        const storedRole = localStorage.getItem("mindforge_role") as "admin" | "worker" | null;
-        setUser({
+        const storedRole = localStorage.getItem(STORAGE_KEY_ROLE) as "admin" | "worker" | null;
+        const restored: User = {
           id: firebaseUser.uid,
           name: firebaseUser.displayName || "User",
           email: firebaseUser.email || "",
           role: storedRole || "worker",
           avatar: firebaseUser.photoURL || undefined,
-        });
+        };
+        setUser(restored);
+        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(restored));
       }
+      // Whether Firebase user exists or not, loading is done
+      setIsLoading(false);
     });
-    return () => unsubscribe();
+
+    // If Firebase never fires (no Google user), resolve loading after a short delay
+    const timeout = setTimeout(() => setIsLoading(false), 500);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const login = useCallback(
@@ -52,37 +91,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role,
         avatar: undefined,
       };
-      localStorage.setItem("mindforge_role", role);
-      setUser(mockUser);
+      persistUser(mockUser);
     },
-    []
+    [persistUser]
   );
 
   const loginWithGoogle = useCallback(
     async (role: "admin" | "worker") => {
       const result = await signInWithPopup(auth, googleProvider);
       const firebaseUser = result.user;
-      localStorage.setItem("mindforge_role", role);
-      setUser({
+      const u: User = {
         id: firebaseUser.uid,
         name: firebaseUser.displayName || "User",
         email: firebaseUser.email || "",
         role,
         avatar: firebaseUser.photoURL || undefined,
-      });
+      };
+      persistUser(u);
     },
-    []
+    [persistUser]
   );
 
   const logout = useCallback(async () => {
     await signOut(auth);
-    localStorage.removeItem("mindforge_role");
-    setUser(null);
-  }, []);
+    persistUser(null);
+  }, [persistUser]);
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, loginWithGoogle, logout }}
+      value={{ user, isAuthenticated: !!user, isLoading, login, loginWithGoogle, logout }}
     >
       {children}
     </AuthContext.Provider>

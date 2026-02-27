@@ -143,7 +143,7 @@ export default function FinancePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-medium tracking-tight">Financial Planner</h1>
+        <h1 className="text-xl font-medium tracking-tight sm:text-2xl">Financial Planner</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Track costs, analyze profit &amp; loss, and forecast future performance
         </p>
@@ -151,17 +151,17 @@ export default function FinancePage() {
 
       <Tabs defaultValue="costs" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 max-w-lg">
-          <TabsTrigger value="costs" className="gap-2">
-            <Calculator className="h-4 w-4" />
-            Cost Tracking
+          <TabsTrigger value="costs" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Calculator className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Cost</span> Tracking
           </TabsTrigger>
-          <TabsTrigger value="pnl" className="gap-2">
-            <DollarSign className="h-4 w-4" />
-            Profit &amp; Loss
+          <TabsTrigger value="pnl" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+            <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            P&amp;L
           </TabsTrigger>
-          <TabsTrigger value="forecast" className="gap-2">
-            <Target className="h-4 w-4" />
-            Forecasting
+          <TabsTrigger value="forecast" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+            <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Fore</span>cast
           </TabsTrigger>
         </TabsList>
 
@@ -233,7 +233,7 @@ export default function FinancePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {categorySpending.map((cat, i) => {
                   const pct = Math.round((cat.amount / cat.budget) * 100);
                   const over = cat.amount > cat.budget;
@@ -333,7 +333,7 @@ export default function FinancePage() {
 
         {/* ── Tab 2: Profit & Loss ── */}
         <TabsContent value="pnl" className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                 <CardTitle className="text-sm font-medium">

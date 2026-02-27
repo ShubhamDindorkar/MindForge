@@ -112,7 +112,7 @@ export default function ReportsPage() {
     <div className="space-y-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-medium tracking-tight">Reports</h1>
+          <h1 className="text-xl font-medium tracking-tight sm:text-2xl">Reports</h1>
           <p className="text-sm text-muted-foreground">
             Generate and export inventory reports
           </p>
@@ -164,7 +164,7 @@ export default function ReportsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Inventory Valuation Report */}
         <Card className="flex flex-col border border-border/60 shadow-none">
           <CardHeader>

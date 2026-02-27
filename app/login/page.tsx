@@ -60,8 +60,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="relative z-10 w-full max-w-md space-y-6">
+    <div className="relative flex min-h-screen items-center justify-center bg-background p-4 overflow-hidden">
+      {/* Top spotlight gradient */}
+      <div className="pointer-events-none absolute inset-x-0 top-0">
+        <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+      </div>
+      {/* Bottom spotlight gradient */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0">
+        <div className="h-52 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-md space-y-4 sm:space-y-6">
         <div className="text-center">
           <Link
             href="/"
@@ -82,10 +91,10 @@ export default function LoginPage() {
         </div>
 
         {!selectedRole ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <button
               onClick={() => setSelectedRole("admin")}
-              className="group rounded-lg border bg-card p-6 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
+              className="group rounded-lg border bg-card p-4 sm:p-6 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <div className="mb-4 inline-flex rounded-lg bg-muted p-3">
                 <Shield className="h-6 w-6 text-primary" />
@@ -97,7 +106,7 @@ export default function LoginPage() {
             </button>
             <button
               onClick={() => setSelectedRole("worker")}
-              className="group rounded-lg border bg-card p-6 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
+              className="group rounded-lg border bg-card p-4 sm:p-6 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <div className="mb-4 inline-flex rounded-lg bg-muted p-3">
                 <ScanLine className="h-6 w-6 text-primary" />

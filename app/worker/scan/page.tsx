@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/_lib/auth-context";
 import { useInventory } from "@/_lib/inventory-context";
 import { formatCurrency } from "@/_lib/utils";
@@ -23,6 +23,8 @@ import {
   Package,
   Check,
   X,
+  Smartphone,
+  ArrowRight,
 } from "lucide-react";
 import type { InventoryItem } from "@/_lib/types";
 
@@ -34,8 +36,6 @@ export default function ScanPage() {
   const [foundItem, setFoundItem] = useState<InventoryItem | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
-  const [cameraError, setCameraError] = useState(false);
-  const scannerRef = useRef<unknown>(null);
 
   const showNotification = useCallback((msg: string) => {
     setNotification(msg);
@@ -59,40 +59,6 @@ export default function ScanPage() {
     [getItemBySku]
   );
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    let scanner: { clear: () => Promise<void> } | null = null;
-
-    (async () => {
-      try {
-        const { Html5QrcodeScanner } = await import("html5-qrcode");
-
-        const instance = new Html5QrcodeScanner(
-          "qr-reader",
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          false
-        );
-
-        instance.render(
-          (decodedText: string) => {
-            handleScanResult(decodedText);
-          },
-          () => {}
-        );
-
-        scanner = instance as unknown as { clear: () => Promise<void> };
-        scannerRef.current = instance;
-      } catch {
-        setCameraError(true);
-      }
-    })();
-
-    return () => {
-      scanner?.clear().catch(() => {});
-    };
-  }, [handleScanResult]);
-
   function handleManualSearch() {
     handleScanResult(manualSku);
   }
@@ -115,150 +81,180 @@ export default function ScanPage() {
     );
   }
 
+  function handleOpenScanner() {
+    window.open("https://backend-eaf7.onrender.com/", "_blank");
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <ScanLine className="h-5 w-5 text-primary" />
-        <h1 className="text-lg font-medium">QR Scanner</h1>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">
+          Scan &amp; Lookup
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Scan QR codes using your camera or search items by SKU.
+        </p>
       </div>
 
       {/* Notification */}
       {notification && (
-        <div className="flex items-center gap-2 rounded-md bg-primary/10 px-3 py-2 text-sm text-primary">
+        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           <Check className="h-4 w-4" />
           {notification}
         </div>
       )}
 
-      {/* Scanner */}
-      <Card>
-        <CardContent className="p-3">
-          {cameraError ? (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <X className="h-8 w-8 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Camera unavailable</p>
-                <p className="text-xs text-muted-foreground">
-                  Please allow camera access or use manual entry below
-                </p>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Left Column — Camera Scanner */}
+        <div className="space-y-6">
+          <Card className="border border-border/60 shadow-none">
+            <CardContent className="flex flex-col items-center px-6 py-10 sm:py-14">
+              {/* Large phone/camera icon */}
+              <div className="mb-6 flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-emerald-50 to-sky-50 sm:h-36 sm:w-36">
+                <Smartphone className="h-14 w-14 text-emerald-600 sm:h-20 sm:w-20" />
               </div>
-            </div>
-          ) : (
-            <div id="qr-reader" className="overflow-hidden rounded-md" />
-          )}
-        </CardContent>
-      </Card>
 
-      {/* Manual Entry */}
-      <Card>
-        <CardContent className="p-3">
-          <p className="mb-2 text-xs text-muted-foreground">
-            Or enter SKU manually
-          </p>
-          <div className="flex gap-2">
-            <Input
-              placeholder="e.g. ELEC-PCB-001"
-              value={manualSku}
-              onChange={(e) => setManualSku(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleManualSearch()}
-            />
-            <Button size="icon" onClick={handleManualSearch}>
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Not Found */}
-      {notFound && (
-        <Card className="border-destructive/50">
-          <CardContent className="flex items-center gap-3 p-4">
-            <X className="h-5 w-5 text-destructive" />
-            <div>
-              <p className="text-sm font-medium">Item not found</p>
-              <p className="text-xs text-muted-foreground">
-                No item matches this SKU. Check the code and try again.
+              <h2 className="mb-2 text-lg font-medium text-foreground sm:text-xl">
+                Scan using Camera
+              </h2>
+              <p className="mb-6 max-w-xs text-center text-sm text-muted-foreground">
+                Open the scanner to scan QR codes or barcodes on inventory items using your device camera.
               </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Found Item Panel */}
-      {foundItem && (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">{foundItem.name}</CardTitle>
               <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => {
-                  setFoundItem(null);
-                  setManualSku("");
-                }}
+                size="lg"
+                className="gap-2 text-base"
+                onClick={handleOpenScanner}
               >
-                <X className="h-4 w-4" />
+                <ScanLine className="h-5 w-5" />
+                Open Scanner
+                <ArrowRight className="h-4 w-4" />
               </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Package className="h-3.5 w-3.5" />
-                SKU
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column — Manual SKU + Results */}
+        <div className="space-y-4">
+          {/* Manual SKU Entry */}
+          <Card className="border border-border/60 shadow-none">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">
+                Manual SKU Lookup
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Enter an item SKU to look up its details and manage stock.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g. ELEC-PCB-001"
+                  value={manualSku}
+                  onChange={(e) => setManualSku(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleManualSearch()}
+                />
+                <Button onClick={handleManualSearch} className="gap-1.5">
+                  <Search className="h-4 w-4" />
+                  <span className="hidden sm:inline">Search</span>
+                </Button>
               </div>
-              <span className="text-right font-mono text-xs">
-                {foundItem.sku}
-              </span>
+            </CardContent>
+          </Card>
 
-              <span className="text-muted-foreground">Quantity</span>
-              <span className="text-right font-medium">
-                {foundItem.quantity}
-              </span>
+          {/* Not Found */}
+          {notFound && (
+            <Card className="border-destructive/50 shadow-none">
+              <CardContent className="flex items-center gap-3 p-4">
+                <X className="h-5 w-5 shrink-0 text-destructive" />
+                <div>
+                  <p className="text-sm font-medium">Item not found</p>
+                  <p className="text-xs text-muted-foreground">
+                    No item matches this SKU. Check the code and try again.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5" />
-                Location
-              </div>
-              <span className="text-right">{foundItem.location}</span>
+          {/* Found Item Panel */}
+          {foundItem && (
+            <Card className="border border-border/60 shadow-none">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">{foundItem.name}</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => {
+                      setFoundItem(null);
+                      setManualSku("");
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-y-2 text-sm">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Package className="h-3.5 w-3.5" />
+                    SKU
+                  </div>
+                  <span className="text-right font-mono text-xs">
+                    {foundItem.sku}
+                  </span>
 
-              <span className="text-muted-foreground">Unit Cost</span>
-              <span className="text-right">
-                {formatCurrency(foundItem.unitCost)}
-              </span>
-            </div>
+                  <span className="text-muted-foreground">Quantity</span>
+                  <span className="text-right font-medium">
+                    {foundItem.quantity}
+                  </span>
 
-            {foundItem.quantity <= foundItem.reorderPoint && (
-              <Badge variant="warning" className="text-xs">
-                Low stock — reorder point: {foundItem.reorderPoint}
-              </Badge>
-            )}
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5" />
+                    Location
+                  </div>
+                  <span className="text-right">{foundItem.location}</span>
 
-            <Separator />
+                  <span className="text-muted-foreground">Unit Cost</span>
+                  <span className="text-right">
+                    {formatCurrency(foundItem.unitCost)}
+                  </span>
+                </div>
 
-            <div className="flex gap-2">
-              <Button
-                className="flex-1 gap-1.5"
-                onClick={() => handleStockAction("in")}
-              >
-                <Plus className="h-4 w-4" />
-                Stock In +1
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 gap-1.5"
-                onClick={() => handleStockAction("out")}
-                disabled={foundItem.quantity <= 0}
-              >
-                <Minus className="h-4 w-4" />
-                Stock Out -1
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                {foundItem.quantity <= foundItem.reorderPoint && (
+                  <Badge variant="warning" className="text-xs">
+                    Low stock — reorder point: {foundItem.reorderPoint}
+                  </Badge>
+                )}
+
+                <Separator />
+
+                <div className="flex gap-2">
+                  <Button
+                    className="flex-1 gap-1.5"
+                    onClick={() => handleStockAction("in")}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Stock In +1
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 gap-1.5"
+                    onClick={() => handleStockAction("out")}
+                    disabled={foundItem.quantity <= 0}
+                  >
+                    <Minus className="h-4 w-4" />
+                    Stock Out -1
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

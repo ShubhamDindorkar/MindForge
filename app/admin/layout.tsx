@@ -142,23 +142,23 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== "admin") {
+    if (!isLoading && (!isAuthenticated || user?.role !== "admin")) {
       router.replace("/login");
     }
-  }, [isAuthenticated, user, router]);
+  }, [isLoading, isAuthenticated, user, router]);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  if (isLoading || !isAuthenticated || user?.role !== "admin") {
     return null;
   }
 
@@ -251,7 +251,7 @@ export default function AdminLayout({
       {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-white/50">
         {/* Welcome header */}
-        <header className="flex h-14 shrink-0 items-center justify-between px-6">
+        <header className="flex h-14 shrink-0 items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -268,7 +268,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6 pt-0">
+        <main className="flex-1 overflow-y-auto p-4 pt-0 sm:p-6 sm:pt-0">
           {children}
         </main>
       </div>

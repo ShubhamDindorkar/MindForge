@@ -129,13 +129,13 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <Card key={kpi.label} className="border border-border/60 shadow-none">
-            <CardContent className="p-5">
+            <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between">
-                <div className={cn("rounded-xl p-2.5", kpi.color)}>
-                  <kpi.icon className="h-5 w-5" />
+                <div className={cn("rounded-xl p-2 sm:p-2.5", kpi.color)}>
+                  <kpi.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <Badge
                   variant="secondary"
@@ -154,10 +154,10 @@ export default function AdminDashboardPage() {
                   {kpi.trend.toFixed(1)}%
                 </Badge>
               </div>
-              <p className="mt-4 text-2xl font-medium text-foreground">
+              <p className="mt-3 text-xl font-medium text-foreground sm:mt-4 sm:text-2xl">
                 {kpi.value}
               </p>
-              <p className="mt-0.5 text-sm text-muted-foreground">{kpi.label}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{kpi.label}</p>
             </CardContent>
           </Card>
         ))}
@@ -173,7 +173,7 @@ export default function AdminDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-72">
+            <div className="h-52 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={financialSummaries}>
                   <defs>
@@ -271,7 +271,7 @@ export default function AdminDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-72">
+            <div className="h-52 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -358,14 +358,14 @@ export default function AdminDashboardPage() {
                       </p>
                       <p className="text-xs text-muted-foreground">{item.sku}</p>
                     </div>
-                    <div className="flex items-center gap-3 text-right">
+                    <div className="flex items-center gap-2 sm:gap-3 text-right">
                       <div>
                         <p className="text-sm font-normal text-destructive">
                           {item.quantity}
                         </p>
                         <p className="text-xs text-muted-foreground">in stock</p>
                       </div>
-                      <div>
+                      <div className="hidden sm:block">
                         <p className="text-sm text-muted-foreground">
                           {item.reorderPoint}
                         </p>
@@ -408,7 +408,7 @@ export default function AdminDashboardPage() {
                       by {txn.performedBy}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <Badge
                       variant="secondary"
                       className={
@@ -420,7 +420,7 @@ export default function AdminDashboardPage() {
                       {txn.type === "in" ? "+" : "-"}
                       {txn.quantity}
                     </Badge>
-                    <span className="w-16 text-right text-xs text-muted-foreground">
+                    <span className="hidden w-16 text-right text-xs text-muted-foreground sm:inline-block">
                       {formatRelativeTime(txn.date)}
                     </span>
                   </div>

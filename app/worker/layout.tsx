@@ -1,103 +1,254 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  ScanLine,
+  Menu,
+  X,
+  LogOut,
+  Settings,
+  Boxes,
+  ChevronUp,
+} from "lucide-react";
 import { useAuth } from "@/_lib/auth-context";
-import { Avatar, AvatarFallback } from "@/_components/ui/avatar";
-import { Home, ScanLine, Clock, Boxes, LogOut } from "lucide-react";
 import { cn } from "@/_lib/utils";
+import { Button } from "@/_components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/_components/ui/avatar";
+import { Separator } from "@/_components/ui/separator";
+import { AnimatePresence, motion } from "motion/react";
 
-const navItems = [
-  { href: "/worker", label: "Home", icon: Home },
-  { href: "/worker/scan", label: "Scan", icon: ScanLine },
-  { href: "/worker/history", label: "History", icon: Clock },
-] as const;
+const sidebarSections = [
+  {
+    title: "Overview",
+    items: [
+      { label: "Dashboard", href: "/worker", icon: LayoutDashboard },
+    ],
+  },
+  {
+    title: "Tools",
+    items: [
+      { label: "Scan", href: "/worker/scan", icon: ScanLine },
+    ],
+  },
+];
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function BottomSection({
+  user,
+  router,
+  logout,
+}: {
+  user: any;
+  router: any;
+  logout: () => void;
+}) {
+  const [showSignOut, setShowSignOut] = useState(false);
+
+  return (
+    <div className="mt-auto border-t border-black/5 px-3 py-3 space-y-1">
+      <Separator className="my-2" />
+
+      <button
+        onClick={() => setShowSignOut((prev) => !prev)}
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-muted/60"
+      >
+        <Avatar className="h-8 w-8">
+          {user?.avatar ? (
+            <AvatarImage src={user.avatar} alt={user.name} />
+          ) : null}
+          <AvatarFallback className="bg-muted text-xs text-foreground">
+            {user ? getInitials(user.name) : "?"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0 text-left">
+          <p className="truncate text-sm font-medium text-foreground">
+            {user?.name}
+          </p>
+          <p className="truncate text-xs text-muted-foreground">
+            {user?.email}
+          </p>
+        </div>
+        <ChevronUp
+          className={cn(
+            "h-4 w-4 text-muted-foreground transition-transform duration-200",
+            showSignOut ? "rotate-0" : "rotate-180"
+          )}
+        />
+      </button>
+
+      <AnimatePresence>
+        {showSignOut && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-hidden"
+          >
+            <button
+              onClick={() => {
+                logout();
+                router.replace("/login");
+              }}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+            >
+              <LogOut className="h-[18px] w-[18px] shrink-0" />
+              <span>Sign out</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function WorkerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== "worker") {
+    if (!isLoading && (!isAuthenticated || user?.role !== "worker")) {
       router.replace("/login");
     }
-  }, [isAuthenticated, user, router]);
+  }, [isLoading, isAuthenticated, user, router]);
 
-  if (!isAuthenticated || user?.role !== "worker") return null;
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
-  const initials = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+  if (isLoading || !isAuthenticated || user?.role !== "worker") {
+    return null;
+  }
+
+  const SidebarContent = () => (
+    <>
+      {/* Sidebar header */}
+      <div className="flex h-14 items-center justify-between px-5">
+        <div className="flex items-center gap-2">
+          <Boxes className="h-5 w-5 text-foreground" />
+          <span className="text-lg font-bold uppercase tracking-wide text-foreground">
+            MindForge
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground md:hidden"
+          onClick={() => setMobileOpen(false)}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Nav sections */}
+      <nav className="flex-1 space-y-6 px-3 pt-4">
+        {sidebarSections.map((section) => (
+          <div key={section.title}>
+            <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
+              {section.title}
+            </p>
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const isActive =
+                  item.href === "/worker"
+                    ? pathname === "/worker"
+                    : pathname.startsWith(item.href);
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => router.push(item.href)}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                      isActive
+                        ? "bg-muted text-foreground font-medium"
+                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-[18px] w-[18px] shrink-0" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* Bottom section: User */}
+      <BottomSection user={user} router={router} logout={logout} />
+    </>
+  );
 
   return (
     <div
-      className="flex min-h-screen items-center justify-center p-3"
+      className="flex h-screen overflow-hidden text-foreground p-3 gap-3"
       style={{
         background: "linear-gradient(135deg, #B8FFD0 0%, #FFF6C9 100%)",
       }}
     >
-      <div className="relative mx-auto flex min-h-[calc(100vh-1.5rem)] w-full max-w-md flex-col rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-white/50">
-        {/* Top bar */}
-        <header className="sticky top-0 z-40 flex items-center justify-between rounded-t-2xl px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Boxes className="h-5 w-5 text-foreground" />
-            <span className="text-sm font-bold uppercase tracking-wide">MindForge</span>
-          </div>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
 
-          <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-            </Avatar>
-            <span className="text-sm">{user.name}</span>
-            <button
-              className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => {
-                logout();
-                router.replace("/login");
-              }}
+      {/* Sidebar — Desktop */}
+      <aside className="hidden md:flex w-[260px] shrink-0 flex-col rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-white/50">
+        <SidebarContent />
+      </aside>
+
+      {/* Sidebar — Mobile */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col bg-white shadow-lg transition-transform duration-300 md:hidden m-3 rounded-2xl",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <SidebarContent />
+      </aside>
+
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-white/50">
+        {/* Welcome header */}
+        <header className="flex h-14 shrink-0 items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground md:hidden"
+              onClick={() => setMobileOpen(true)}
             >
-              <LogOut className="h-4 w-4" />
-            </button>
+              <Menu className="h-5 w-5" />
+            </Button>
+            <h1 className="text-base text-foreground">
+              Welcome, {user?.name?.split(" ")[0] ?? "User"}
+            </h1>
           </div>
         </header>
 
-        {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-4 pb-20">{children}</main>
-
-        {/* Bottom navigation */}
-        <nav className="absolute bottom-0 left-0 right-0 z-40 rounded-b-2xl border-t border-black/5 bg-white/60 backdrop-blur-sm">
-          <div className="flex items-center justify-around py-2">
-            {navItems.map(({ href, label, icon: Icon }) => {
-              const isActive =
-                href === "/worker"
-                  ? pathname === "/worker"
-                  : pathname.startsWith(href);
-
-              return (
-                <button
-                  key={href}
-                  onClick={() => router.push(href)}
-                  className={cn(
-                    "flex flex-col items-center gap-0.5 rounded-md px-3 py-1.5 text-xs transition-colors",
-                    isActive
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Icon className="h-5 w-5" />
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </nav>
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto p-4 pt-0 sm:p-6 sm:pt-0">
+          {children}
+        </main>
       </div>
     </div>
   );

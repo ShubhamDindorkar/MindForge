@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/_lib/auth-context";
 import { useInventory } from "@/_lib/inventory-context";
-import { formatRelativeTime } from "@/_lib/utils";
+import { formatRelativeTime, cn } from "@/_lib/utils";
 import { Button } from "@/_components/ui/button";
-import { Card, CardContent } from "@/_components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/_components/ui/card";
 import { Badge } from "@/_components/ui/badge";
 import {
   Dialog,
@@ -28,8 +33,12 @@ import {
   ScanLine,
   ArrowDownToLine,
   ArrowUpFromLine,
-  Clock,
+  ArrowUpRight,
+  ArrowDownRight,
   Package,
+  Activity,
+  AlertTriangle,
+  Boxes,
 } from "lucide-react";
 
 type DialogMode = "in" | "out" | null;
@@ -43,14 +52,27 @@ export default function WorkerHomePage() {
   const [selectedItemId, setSelectedItemId] = useState("");
   const [quantity, setQuantity] = useState(1);
 
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  const recentTransactions = useMemo(() => transactions.slice(0, 10), [transactions]);
 
-  const recentTransactions = transactions.slice(0, 5);
+  const totalItems = useMemo(
+    () => items.reduce((sum, item) => sum + item.quantity, 0),
+    [items]
+  );
+
+  const stockInCount = useMemo(
+    () => transactions.filter((t) => t.type === "in").reduce((s, t) => s + t.quantity, 0),
+    [transactions]
+  );
+
+  const stockOutCount = useMemo(
+    () => transactions.filter((t) => t.type === "out").reduce((s, t) => s + t.quantity, 0),
+    [transactions]
+  );
+
+  const lowStockItems = useMemo(
+    () => items.filter((item) => item.quantity <= item.reorderPoint),
+    [items]
+  );
 
   function handleSubmit() {
     if (!dialogMode || !selectedItemId || quantity < 1) return;
@@ -72,110 +94,241 @@ export default function WorkerHomePage() {
     setQuantity(1);
   }
 
-  const quickActions = [
+  const kpis = [
     {
-      label: "Scan QR Code",
-      icon: ScanLine,
-      color: "text-primary",
-      bg: "bg-primary/10",
-      action: () => router.push("/worker/scan"),
+      label: "Total Stock",
+      value: totalItems.toLocaleString(),
+      icon: Package,
+      trend: 4.2,
+      up: true,
+      color: "bg-emerald-50 text-emerald-600",
     },
     {
-      label: "Stock In",
+      label: "Items In",
+      value: stockInCount.toLocaleString(),
       icon: ArrowDownToLine,
-      color: "text-foreground",
-      bg: "bg-muted",
-      action: () => setDialogMode("in"),
+      trend: 8.1,
+      up: true,
+      color: "bg-blue-50 text-blue-600",
     },
     {
-      label: "Stock Out",
+      label: "Items Out",
+      value: stockOutCount.toLocaleString(),
       icon: ArrowUpFromLine,
-      color: "text-muted-foreground",
-      bg: "bg-muted",
-      action: () => setDialogMode("out"),
+      trend: 3.5,
+      up: false,
+      color: "bg-amber-50 text-amber-600",
+    },
+    {
+      label: "Low Stock Alerts",
+      value: lowStockItems.length.toString(),
+      icon: AlertTriangle,
+      trend: lowStockItems.length > 0 ? lowStockItems.length : 0,
+      up: lowStockItems.length === 0,
+      color: "bg-rose-50 text-rose-600",
     },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Greeting */}
-      <div>
-        <h1 className="text-xl font-medium">Hello, {user?.name}</h1>
-        <p className="text-sm text-muted-foreground">{today}</p>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-3 gap-3">
-        {quickActions.map((qa) => (
-          <Card
-            key={qa.label}
-            className="cursor-pointer transition-colors hover:bg-muted/50"
-            onClick={qa.action}
-          >
-            <CardContent className="flex flex-col items-center gap-2 p-4">
-              <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full ${qa.bg}`}
-              >
-                <qa.icon className={`h-5 w-5 ${qa.color}`} />
+    <div className="space-y-8">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {kpis.map((kpi) => (
+          <Card key={kpi.label} className="border border-border/60 shadow-none">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-center justify-between">
+                <div className={cn("rounded-xl p-2 sm:p-2.5", kpi.color)}>
+                  <kpi.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    "border-0 text-xs",
+                    kpi.up
+                      ? "bg-emerald-50 text-emerald-600"
+                      : "bg-red-50 text-red-600"
+                  )}
+                >
+                  {kpi.up ? (
+                    <ArrowUpRight className="mr-0.5 h-3 w-3" />
+                  ) : (
+                    <ArrowDownRight className="mr-0.5 h-3 w-3" />
+                  )}
+                  {kpi.trend.toFixed(1)}%
+                </Badge>
               </div>
-              <span className="text-center text-xs font-medium">
-                {qa.label}
-              </span>
+              <p className="mt-3 text-xl font-medium text-foreground sm:mt-4 sm:text-2xl">
+                {kpi.value}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{kpi.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Recent Transactions */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-sm font-normal">Recent Activity</h2>
-        </div>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        <Card
+          className="cursor-pointer transition-colors hover:bg-muted/50 border border-border/60 shadow-none"
+          onClick={() => router.push("/worker/scan")}
+        >
+          <CardContent className="flex items-center gap-4 p-4 sm:flex-col sm:items-center sm:gap-2 sm:p-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              <ScanLine className="h-5 w-5 text-primary" />
+            </div>
+            <div className="sm:text-center">
+              <span className="text-sm font-medium">Scan QR Code</span>
+              <p className="text-xs text-muted-foreground sm:mt-1">
+                Scan items to check or update stock
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card
+          className="cursor-pointer transition-colors hover:bg-muted/50 border border-border/60 shadow-none"
+          onClick={() => setDialogMode("in")}
+        >
+          <CardContent className="flex items-center gap-4 p-4 sm:flex-col sm:items-center sm:gap-2 sm:p-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+              <ArrowDownToLine className="h-5 w-5 text-foreground" />
+            </div>
+            <div className="sm:text-center">
+              <span className="text-sm font-medium">Stock In</span>
+              <p className="text-xs text-muted-foreground sm:mt-1">
+                Record incoming inventory
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card
+          className="cursor-pointer transition-colors hover:bg-muted/50 border border-border/60 shadow-none"
+          onClick={() => setDialogMode("out")}
+        >
+          <CardContent className="flex items-center gap-4 p-4 sm:flex-col sm:items-center sm:gap-2 sm:p-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+              <ArrowUpFromLine className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="sm:text-center">
+              <span className="text-sm font-medium">Stock Out</span>
+              <p className="text-xs text-muted-foreground sm:mt-1">
+                Record outgoing inventory
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {recentTransactions.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-6">
-            No recent transactions
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {recentTransactions.map((tx) => (
-              <Card key={tx.id}>
-                <CardContent className="flex items-center gap-3 p-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                    <Package className="h-4 w-4 text-muted-foreground" />
+      {/* Bottom Row */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {/* Low Stock Alerts */}
+        <Card className="border border-border/60 shadow-none">
+          <CardHeader className="flex-row items-center gap-2 space-y-0">
+            <AlertTriangle className="h-4 w-4 text-foreground" />
+            <CardTitle className="text-sm font-medium text-foreground">
+              Low Stock Alerts
+            </CardTitle>
+            <Badge
+              variant="secondary"
+              className="ml-auto border-0 bg-muted text-foreground"
+            >
+              {lowStockItems.length}
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            {lowStockItems.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                All items are sufficiently stocked.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {lowStockItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between rounded-md border border-border px-3 py-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{item.sku}</p>
+                    </div>
+                    <div className="flex items-center gap-3 text-right">
+                      <div>
+                        <p className="text-sm font-normal text-destructive">
+                          {item.quantity}
+                        </p>
+                        <p className="text-xs text-muted-foreground">in stock</p>
+                      </div>
+                      <div className="hidden sm:block">
+                        <p className="text-sm text-muted-foreground">
+                          {item.reorderPoint}
+                        </p>
+                        <p className="text-xs text-muted-foreground">reorder</p>
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className="border-0 bg-muted text-foreground"
+                      >
+                        {item.quantity === 0 ? "Out" : "Low"}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {tx.itemName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatRelativeTime(tx.date)}
-                    </p>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card className="border border-border/60 shadow-none">
+          <CardHeader className="flex-row items-center gap-2 space-y-0">
+            <Activity className="h-4 w-4 text-foreground" />
+            <CardTitle className="text-sm font-medium text-foreground">
+              Recent Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recentTransactions.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-6 text-center">
+                No recent transactions
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {recentTransactions.map((txn) => (
+                  <div
+                    key={txn.id}
+                    className="flex items-center justify-between rounded-md border border-border px-3 py-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {txn.itemName}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        by {txn.performedBy}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <Badge
+                        variant="secondary"
+                        className={
+                          txn.type === "in"
+                            ? "border-0 bg-muted text-foreground"
+                            : "border-0 bg-muted text-muted-foreground"
+                        }
+                      >
+                        {txn.type === "in" ? "+" : "-"}
+                        {txn.quantity}
+                      </Badge>
+                      <span className="hidden w-16 text-right text-xs text-muted-foreground sm:inline-block">
+                        {formatRelativeTime(txn.date)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-sm font-normal ${
-                        tx.type === "in"
-                          ? "text-foreground"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {tx.type === "in" ? "+" : "-"}
-                      {tx.quantity}
-                    </span>
-                    <Badge
-                      variant={tx.type === "in" ? "success" : "destructive"}
-                      className="text-[10px]"
-                    >
-                      {tx.type === "in" ? "IN" : "OUT"}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Stock In/Out Dialog */}
