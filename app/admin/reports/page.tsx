@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   inventoryItems,
   transactions,
   financialSummaries,
 } from "@/_lib/mock-data";
-import { formatCurrency } from "@/_lib/utils";
+import { formatCurrency, cn } from "@/_lib/utils";
 import { Button } from "@/_components/ui/button";
 import {
   Card,
@@ -20,13 +20,49 @@ import { Badge } from "@/_components/ui/badge";
 import { Separator } from "@/_components/ui/separator";
 import { Input } from "@/_components/ui/input";
 import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/_components/ui/select";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/_components/ui/tabs";
+import {
   FileText,
   Download,
   Package,
   ArrowLeftRight,
   DollarSign,
   Calendar,
+  Brain,
+  Sparkles,
+  TrendingUp,
+  AlertTriangle,
+  ShieldAlert,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  getForecast,
+  getAnomalies,
+  type ForecastResponse,
+  type AnomaliesResponse,
+} from "@/_lib/ai-service";
 
 type Preset = "week" | "month" | "quarter" | "custom";
 

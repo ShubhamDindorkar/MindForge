@@ -40,14 +40,6 @@ Inventory decisions are often based on static forecasting models, manual estimat
 - Alert: "Unusual demand spike detected for Item X — 240% above baseline"
 - **Directly solves:** *"sudden demand spikes or supply disruptions"*
 
-### 4. ABC-XYZ Classification
-
-- Auto-classify inventory into categories:
-  - **ABC** (by value): A = top 20% items driving 80% cost, B = mid, C = low
-  - **XYZ** (by demand predictability): X = stable, Y = variable, Z = erratic
-- Show this matrix on the reports page — helps prioritize which items need tighter optimization
-- **Directly solves:** *"fragmented data systems and lack of predictive visibility"*
-
 ---
 
 ## Priority Matrix
@@ -57,7 +49,6 @@ Inventory decisions are often based on static forecasting models, manual estimat
 | Demand Forecasting     | Medium                  | Very High  | Direct hit  |
 | Smart Reorder Alerts   | Low (builds on forecast)| High       | Direct hit  |
 | Anomaly Detection      | Low                     | Medium     | Direct hit  |
-| ABC-XYZ Classification | Low                     | Medium     | Supporting  |
 
 ---
 

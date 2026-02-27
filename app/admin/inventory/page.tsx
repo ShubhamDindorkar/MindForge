@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useInventory } from "@/_lib/inventory-context";
 import { CATEGORIES, LOCATIONS } from "@/_lib/mock-data";
-import { formatCurrency } from "@/_lib/utils";
+import { formatCurrency, cn } from "@/_lib/utils";
 import type { InventoryItem } from "@/_lib/types";
 import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
@@ -41,7 +41,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Package,
+  Brain,
+  Sparkles,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
+import { getInsights, type AIRecommendation } from "@/_lib/ai-service";
 
 type SortKey =
   | "name"
@@ -94,6 +99,33 @@ export default function InventoryPage() {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState<InventoryItem | null>(null);
+
+  /* AI recommendations state */
+  const [aiRecs, setAiRecs] = useState<AIRecommendation[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const fetchAiRecs = useCallback(async () => {
+    setAiLoading(true);
+    try {
+      const data = await getInsights();
+      setAiRecs(data.recommendations || []);
+    } catch {
+      // silently fail — AI badges are optional
+    } finally {
+      setAiLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAiRecs();
+  }, [fetchAiRecs]);
+
+  /** Map SKU → AI recommendation for quick lookup */
+  const aiBySkuMap = useMemo(() => {
+    const map = new Map<string, AIRecommendation>();
+    aiRecs.forEach((rec) => map.set(rec.sku, rec));
+    return map;
+  }, [aiRecs]);
 
   const uniqueCategories = useMemo(() => {
     const cats = new Set(items.map((i) => i.category));
@@ -316,6 +348,12 @@ export default function InventoryPage() {
                       </button>
                     </th>
                   ))}
+                  <th className="px-4 py-3 text-left font-medium">
+                    <span className="inline-flex items-center gap-1">
+                      <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+                      AI
+                    </span>
+                  </th>
                   <th className="px-4 py-3 text-right font-medium">Actions</th>
                 </tr>
               </thead>
@@ -323,7 +361,7 @@ export default function InventoryPage() {
                 {paginated.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="px-4 py-12 text-center text-muted-foreground"
                     >
                       No items found.
@@ -355,6 +393,28 @@ export default function InventoryPage() {
                           <Badge variant={getStatusVariant(status)}>
                             {status}
                           </Badge>
+                        </td>
+                        <td className="px-4 py-3">
+                          {(() => {
+                            const rec = aiBySkuMap.get(item.sku);
+                            if (aiLoading) return <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />;
+                            if (!rec) return <span className="text-xs text-muted-foreground">—</span>;
+                            const colors = {
+                              critical: "bg-red-100 text-red-700 border-red-200",
+                              high: "bg-orange-100 text-orange-700 border-orange-200",
+                              medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
+                              low: "bg-emerald-100 text-emerald-700 border-emerald-200",
+                            };
+                            return (
+                              <Badge
+                                variant="secondary"
+                                className={cn("text-[10px] px-1.5 py-0 border cursor-help", colors[rec.urgency] || colors.low)}
+                                title={rec.description}
+                              >
+                                {rec.type === "reorder" ? "⚡ Reorder" : rec.type === "anomaly" ? "⚠️ Anomaly" : "📦 Overstock"}
+                              </Badge>
+                            );
+                          })()}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-1">
