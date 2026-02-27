@@ -138,6 +138,11 @@ export default function LandingPage() {
       </Navbar>
 
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden -mt-16">
+        {/* Top spotlight gradient */}
+        <div className="pointer-events-none absolute inset-x-0 top-0">
+          <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+        </div>
+
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <h1 className="mb-6 text-5xl font-medium tracking-tight sm:text-6xl lg:text-7xl text-foreground">
             Streamline Your Inventory.<br />
