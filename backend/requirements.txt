@@ -1,0 +1,9 @@
+# Core requirements for the FastAPI YOLOv8 service
+# Platform-agnostic for local dev (Mac/Linux/Windows)
+fastapi==0.110.0
+uvicorn==0.27.1
+ultralytics==8.1.18
+python-multipart==0.0.9
+pillow==10.2.0
+torch>=2.2.0
+torchvision>=0.17.0
