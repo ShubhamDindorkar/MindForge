@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Lenis from "lenis";
 import {
   LayoutDashboard,
   Package,
@@ -158,6 +159,22 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  /* Lenis smooth scroll on the admin main panel */
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const lenis = new Lenis({
+      wrapper: el,
+      content: el,
+      duration: 1.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      touchMultiplier: 2,
+      autoRaf: true,
+    });
+    return () => lenis.destroy();
+  }, []);
 
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== "admin")) {
@@ -281,7 +298,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 pt-0 sm:p-6 sm:pt-0">
+        <main ref={mainRef} className="flex-1 overflow-y-auto min-h-0 p-4 pt-0 sm:p-6 sm:pt-0">
           {children}
         </main>
       </div>
