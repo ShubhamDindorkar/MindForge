@@ -14,7 +14,9 @@ Powered by: Firebase Firestore + OpenRouter LLM
 import json
 import math
 import os
+import time
 from datetime import datetime
+from threading import Lock
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -50,7 +52,29 @@ openrouter_client = OpenAI(
 
 MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
 
-# ── Helper: fetch all SKU stats from Firestore ──────────────────────────────
+# ── In-memory response cache (TTL = 5 minutes) ───────────────────────────────
+
+_cache: dict = {}
+_cache_lock = Lock()
+CACHE_TTL = 300  # 5 minutes in seconds
+
+
+def cache_get(key: str):
+    with _cache_lock:
+        entry = _cache.get(key)
+        if entry and (time.time() - entry["ts"]) < CACHE_TTL:
+            return entry["data"]
+    return None
+
+
+def cache_set(key: str, data):
+    with _cache_lock:
+        _cache[key] = {"data": data, "ts": time.time()}
+
+
+def cache_bust(key: str):
+    with _cache_lock:
+        _cache.pop(key, None)
 
 
 def get_all_sku_stats() -> list[dict]:
@@ -253,6 +277,11 @@ def health():
 @app.route("/api/insights", methods=["GET"])
 def insights():
     """Get top AI recommendations across all SKUs."""
+    if request.args.get("refresh") != "1":
+        cached = cache_get("insights")
+        if cached:
+            return jsonify(cached)
+
     all_stats = get_all_sku_stats()
     if not all_stats:
         return jsonify({"error": "No inventory data available"}), 404
@@ -295,6 +324,7 @@ INVENTORY DATA:
             cleaned = cleaned.rsplit("```", 1)[0]
         cleaned = cleaned.strip()
         parsed = json.loads(cleaned)
+        cache_set("insights", parsed)
         return jsonify(parsed)
     except json.JSONDecodeError:
         return jsonify({
@@ -307,6 +337,12 @@ INVENTORY DATA:
 @app.route("/api/forecast/<sku>", methods=["GET"])
 def forecast(sku: str):
     """Get demand forecast for a specific SKU."""
+    cache_key = f"forecast_{sku}"
+    if request.args.get("refresh") != "1":
+        cached = cache_get(cache_key)
+        if cached:
+            return jsonify(cached)
+
     sku_data = get_sku_data(sku)
     if not sku_data:
         return jsonify({"error": f"SKU {sku} not found"}), 404
@@ -364,6 +400,7 @@ LAST 30 DAYS ACTUAL DATA:
 
         # Attach actual recent data for charting
         parsed["actual_data"] = recent
+        cache_set(f"forecast_{sku}", parsed)
         return jsonify(parsed)
     except json.JSONDecodeError:
         return jsonify({
@@ -377,6 +414,11 @@ LAST 30 DAYS ACTUAL DATA:
 @app.route("/api/anomalies", methods=["GET"])
 def anomalies():
     """Get all detected anomalies across SKUs."""
+    if request.args.get("refresh") != "1":
+        cached = cache_get("anomalies")
+        if cached:
+            return jsonify(cached)
+
     all_stats = get_all_sku_stats()
     if not all_stats:
         return jsonify({"error": "No inventory data available"}), 404
@@ -419,6 +461,7 @@ INVENTORY DATA:
             cleaned = cleaned.rsplit("```", 1)[0]
         cleaned = cleaned.strip()
         parsed = json.loads(cleaned)
+        cache_set("anomalies", parsed)
         return jsonify(parsed)
     except json.JSONDecodeError:
         return jsonify({
@@ -479,6 +522,11 @@ USER QUESTION: {question}"""
 @app.route("/api/cost-optimization", methods=["GET"])
 def cost_optimization():
     """Calculate financial impact of current inventory state and AI recommendations."""
+    if request.args.get("refresh") != "1":
+        cached = cache_get("cost_optimization")
+        if cached:
+            return jsonify(cached)
+
     all_stats = get_all_sku_stats()
     
     context = build_all_skus_context(all_stats)
@@ -516,6 +564,7 @@ INVENTORY DATA:
             cleaned = cleaned.rsplit("```", 1)[0]
         cleaned = cleaned.strip()
         parsed = json.loads(cleaned)
+        cache_set("cost_optimization", parsed)
         return jsonify(parsed)
     except json.JSONDecodeError:
         # Fallback calculation
@@ -625,6 +674,11 @@ CURRENT INVENTORY DATA:
 @app.route("/api/warehouse-optimization", methods=["GET"])
 def warehouse_optimization():
     """Detect stock imbalances across warehouses and recommend transfers."""
+    if request.args.get("refresh") != "1":
+        cached = cache_get("warehouse_optimization")
+        if cached:
+            return jsonify(cached)
+
     all_stats = get_all_sku_stats()
     
     # Group by location
@@ -693,6 +747,7 @@ Return ONLY valid JSON (no markdown):
             cleaned = cleaned.rsplit("```", 1)[0]
         cleaned = cleaned.strip()
         parsed = json.loads(cleaned)
+        cache_set("warehouse_optimization", parsed)
         return jsonify(parsed)
     except json.JSONDecodeError:
         return jsonify({
@@ -712,8 +767,41 @@ Return ONLY valid JSON (no markdown):
         })
 
 
+@app.route("/api/cache/clear", methods=["POST"])
+def clear_cache():
+    """Bust all cached responses so next request fetches fresh AI data."""
+    with _cache_lock:
+        _cache.clear()
+    return jsonify({"status": "cleared"})
+
+
+# ── Cache warmup on startup ───────────────────────────────────────────────────
+
+def _warmup_cache():
+    """Pre-fetch AI data into cache on server start so first page load is fast."""
+    import threading
+    import urllib.request
+
+    def _run():
+        import time as _t
+        _t.sleep(4)  # Wait for Flask to finish binding
+        port = int(os.getenv("PORT", 5001))
+        base = f"http://127.0.0.1:{port}"
+        endpoints = ["/api/insights", "/api/anomalies", "/api/cost-optimization", "/api/warehouse-optimization"]
+        for ep in endpoints:
+            try:
+                urllib.request.urlopen(f"{base}{ep}?refresh=0", timeout=30)
+                print(f"✅ Warmed cache: {ep}")
+            except Exception as e:
+                print(f"⚠️  Cache warmup failed for {ep}: {e}")
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+
 # ── Run ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
+    _warmup_cache()
     app.run(host="0.0.0.0", port=port, debug=True)
