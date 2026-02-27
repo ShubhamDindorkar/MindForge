@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Shield, ScanLine, Boxes, ArrowLeft, Loader2 } from "lucide-react";
+import {
+  Shield,
+  ScanLine,
+  Boxes,
+  ArrowLeft,
+  Loader2,
+} from "lucide-react";
 import { useAuth } from "@/_lib/auth-context";
 import { Button } from "@/_components/ui/button";
 import { Input } from "@/_components/ui/input";
 import { Label } from "@/_components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/_components/ui/card";
-import { cn } from "@/_lib/utils";
 import Link from "next/link";
 
 type Role = "admin" | "worker" | null;
@@ -60,80 +64,107 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background p-4 overflow-hidden">
+    <div className="relative flex min-h-screen overflow-hidden bg-background">
       {/* Top spotlight gradient */}
-      <div className="pointer-events-none absolute inset-x-0 top-0">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-0">
         <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
       </div>
-      {/* Bottom spotlight gradient */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0">
-        <div className="h-52 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
+      {/* Bottom spotlight gradient — shorter */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0">
+        <div className="h-28 w-full rounded-t-[999px] bg-gradient-to-t from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md space-y-4 sm:space-y-6">
-        <div className="text-center">
+      {/* ───── Left side — Logo only (hidden on mobile) ───── */}
+      <div className="relative z-10 hidden w-1/2 flex-col items-center justify-center px-12 lg:px-20 md:flex">
+        <div className="space-y-6">
           <Link
             href="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to home
           </Link>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <Boxes className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-medium">MindForge</h1>
+
+          <div className="flex items-center gap-3">
+            <Boxes className="h-12 w-12 text-primary" />
+            <span className="text-4xl font-bold uppercase tracking-wide text-foreground">
+              MindForge
+            </span>
           </div>
-          <p className="mt-2 text-muted-foreground">
-            {selectedRole
-              ? `Sign in as ${selectedRole}`
-              : "Select your role to continue"}
-          </p>
+        </div>
+      </div>
+
+      {/* ───── Right side — Auth forms ───── */}
+      <div className="relative z-10 flex w-full flex-col items-center justify-center px-6 py-12 md:w-1/2 md:px-12">
+        {/* Mobile-only back link + logo */}
+        <div className="mb-8 w-full max-w-md text-center md:hidden">
+          <Link
+            href="/"
+            className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to home
+          </Link>
+          <div className="mt-3 flex items-center justify-center gap-2">
+            <Boxes className="h-8 w-8 text-primary" />
+            <span className="text-2xl font-bold uppercase tracking-wide text-foreground">
+              MindForge
+            </span>
+          </div>
         </div>
 
-        {!selectedRole ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <button
-              onClick={() => setSelectedRole("admin")}
-              className="group rounded-lg border bg-card p-4 sm:p-6 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <div className="mb-4 inline-flex rounded-lg bg-muted p-3">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="mb-1 font-normal">Admin</h3>
-              <p className="text-xs text-muted-foreground">
-                Manage inventory, analytics & finances
-              </p>
-            </button>
-            <button
-              onClick={() => setSelectedRole("worker")}
-              className="group rounded-lg border bg-card p-4 sm:p-6 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <div className="mb-4 inline-flex rounded-lg bg-muted p-3">
-                <ScanLine className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="mb-1 font-normal">Worker</h3>
-              <p className="text-xs text-muted-foreground">
-                Scan items & update stock levels
-              </p>
-            </button>
+        <div className="w-full max-w-md space-y-6">
+          {/* Heading */}
+          <div>
+            <h2 className="text-xl font-medium text-foreground sm:text-2xl">
+              {selectedRole
+                ? `Sign in as ${selectedRole === "admin" ? "Admin" : "Worker"}`
+                : "Welcome back"}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {selectedRole
+                ? `Enter your credentials to access the ${selectedRole === "admin" ? "dashboard" : "mobile app"}`
+                : "Select your role to continue"}
+            </p>
           </div>
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                {selectedRole === "admin" ? (
-                  <Shield className="h-5 w-5 text-primary" />
-                ) : (
-                  <ScanLine className="h-5 w-5 text-primary" />
-                )}
-                {selectedRole === "admin" ? "Admin" : "Worker"} Login
-              </CardTitle>
-              <CardDescription>
-                Enter your credentials to access the{" "}
-                {selectedRole === "admin" ? "dashboard" : "mobile app"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+
+          {/* Role selection */}
+          {!selectedRole ? (
+            <div className="space-y-3">
+              <button
+                onClick={() => setSelectedRole("admin")}
+                className="group flex w-full items-center gap-4 rounded-xl border bg-card p-4 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring sm:p-5"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-medium text-foreground">Admin</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Manage inventory, analytics &amp; finances
+                  </p>
+                </div>
+                <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
+              </button>
+
+              <button
+                onClick={() => setSelectedRole("worker")}
+                className="group flex w-full items-center gap-4 rounded-xl border bg-card p-4 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring sm:p-5"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                  <ScanLine className="h-6 w-6 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-medium text-foreground">Worker</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Scan items &amp; update stock levels
+                  </p>
+                </div>
+                <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -163,52 +194,54 @@ export default function LoginPage() {
                   ) : null}
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
-
-                <div className="relative my-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">or</span>
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleGoogleSignIn}
-                  disabled={isGoogleLoading}
-                >
-                  {isGoogleLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <GoogleIcon className="mr-2 h-4 w-4" />
-                  )}
-                  {isGoogleLoading ? "Signing in..." : "Continue with Google"}
-                </Button>
-
-                {error && (
-                  <p className="text-sm text-red-500 text-center">{error}</p>
-                )}
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => {
-                    setSelectedRole(null);
-                    setEmail("");
-                    setPassword("");
-                    setError(null);
-                  }}
-                >
-                  Choose a different role
-                </Button>
               </form>
-            </CardContent>
-          </Card>
-        )}
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    or
+                  </span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleSignIn}
+                disabled={isGoogleLoading}
+              >
+                {isGoogleLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <GoogleIcon className="mr-2 h-4 w-4" />
+                )}
+                {isGoogleLoading ? "Signing in..." : "Continue with Google"}
+              </Button>
+
+              {error && (
+                <p className="text-center text-sm text-red-500">{error}</p>
+              )}
+
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setSelectedRole(null);
+                  setEmail("");
+                  setPassword("");
+                  setError(null);
+                }}
+              >
+                Choose a different role
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
