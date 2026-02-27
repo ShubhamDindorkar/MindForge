@@ -1,4 +1,91 @@
-# MindForge — AI/ML Features Roadmap
+# StockShiftAI (MindForge) — AI/ML Architecture & Implementation
+
+---
+
+## LLM Provider
+
+- **Model**: Google Gemini 2.0 Flash (`google/gemini-2.0-flash-001`) via **OpenRouter**
+- **Client**: Python `openai` SDK with `base_url` set to `https://openrouter.ai/api/v1` — see `backend/app.py`
+- **Config**: temperature `0.1`, max tokens `1000`, 25s timeout per call
+
+---
+
+## RAG Pattern (Structured Data RAG)
+
+This project uses a **structured-data RAG** approach — **no embeddings, no vector database, no semantic search**.
+
+| RAG Stage | How it works |
+|---|---|
+| **Retrieval** | Firestore queries fetch inventory/SKU data (falls back to local JSON `inventory_history.json`) |
+| **Augmentation** | `build_sku_context()` / `build_all_skus_context()` serialize inventory stats (quantities, costs, demand, lead times) into plain-text strings injected into the prompt |
+| **Generation** | `call_llm(system_prompt, user_prompt)` sends the data-augmented prompt to Gemini via OpenRouter, requesting structured JSON output |
+
+Every LLM endpoint follows this exact 3-step flow.
+
+---
+
+## Backend AI Endpoints (`backend/app.py`)
+
+| Endpoint | Method | What it does |
+|---|---|---|
+| `/api/insights` | GET | Top 5 AI recommendations across all SKUs |
+| `/api/forecast/<sku>` | GET/POST | 14-day demand forecast for a single SKU (POST sends item data for unknown SKUs) |
+| `/api/anomalies` | GET | Detect anomalies across all SKUs with severity + health score |
+| `/api/chat` | POST | Natural language Q&A — all SKU context + user question → freeform answer |
+| `/api/cost-optimization` | GET | Capital locked, overstock, stockout risk, holding cost analysis |
+| `/api/scenario-planning` | POST | What-if analysis with demand/lead-time/safety-stock modifiers |
+| `/api/warehouse-optimization` | GET | Inter-warehouse transfer recommendations with cost-benefit |
+
+All responses are cached in-memory with a **5-minute TTL**. Cache warmup runs on startup for insights, anomalies, cost-optimization, and warehouse-optimization.
+
+---
+
+## Frontend Service Layer (`app/_lib/ai-service.ts`)
+
+All calls go through `apiFetch()` which hits `NEXT_PUBLIC_AI_BACKEND_URL` (default `http://localhost:5001`):
+
+| Function | Backend Endpoint | Called by |
+|---|---|---|
+| `getInsights()` | `GET /api/insights` | Dashboard, Inventory |
+| `getForecast(sku, item?)` | `GET/POST /api/forecast/<sku>` | Reports |
+| `getAnomalies()` | `GET /api/anomalies` | Reports |
+| `askChat(question)` | `POST /api/chat` | Available (not wired to a page currently) |
+| `getCostOptimization()` | `GET /api/cost-optimization` | Cost Optimization |
+| `runScenarioPlanning(params)` | `POST /api/scenario-planning` | Scenario Planning |
+| `getWarehouseOptimization()` | `GET /api/warehouse-optimization` | Warehouse Optimization |
+
+---
+
+## Which Pages Use Which AI
+
+| Page | AI function(s) |
+|---|---|
+| `admin/dashboard/page.tsx` | `getInsights()` — AI recommendation cards |
+| `admin/inventory/page.tsx` | `getInsights()` — per-item AI recommendations |
+| `admin/reports/page.tsx` | `getForecast()` + `getAnomalies()` — demand charts & anomaly detection |
+| `admin/cost-optimization/page.tsx` | `getCostOptimization()` — capital & cost analysis |
+| `admin/scenario-planning/page.tsx` | `runScenarioPlanning()` — what-if simulator |
+| `admin/warehouse-optimization/page.tsx` | `getWarehouseOptimization()` — transfer suggestions |
+
+---
+
+## Non-LLM "AI" Analytics
+
+`app/_lib/ai-finance.ts` contains `generateAiLikeRecommendations()` — a **purely algorithmic** function (no LLM) that calculates demand projections, seasonal multipliers, and stock recommendations. It's served by the Next.js route `app/api/finance/recommendations/route.ts`.
+
+The other Next.js API routes under `app/api/finance/` (analysis, costs, forecast) are also purely data-serving with no LLM involvement.
+
+---
+
+## What's NOT in the system
+
+- **No embeddings or vector DB** (no Pinecone, ChromaDB, FAISS)
+- **No document chunking or semantic retrieval** — all data is structured Firestore records
+- **No fine-tuning** — uses Gemini Flash off-the-shelf
+- **No streaming** — all LLM calls are synchronous
+- **No multi-turn memory** — each call re-injects full context (stateless)
+
+---
 
 ## Problem Statement
 
