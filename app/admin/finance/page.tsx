@@ -45,12 +45,12 @@ import {
 } from "lucide-react";
 
 const CHART_COLORS = [
-  "hsl(0,0%,12%)",
-  "hsl(0,0%,32%)",
-  "hsl(0,0%,52%)",
-  "hsl(0,0%,68%)",
-  "hsl(0,0%,80%)",
-  "hsl(0,0%,90%)",
+  "hsl(217, 91%, 60%)",
+  "hsl(142, 71%, 45%)",
+  "hsl(38, 92%, 50%)",
+  "hsl(340, 82%, 52%)",
+  "hsl(262, 83%, 58%)",
+  "hsl(0, 0%, 65%)",
 ];
 
 const tooltipStyle = {
@@ -141,10 +141,10 @@ export default function FinancePage() {
   }, [adjustedForecast]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Financial Planner</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl font-medium tracking-tight">Financial Planner</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Track costs, analyze profit &amp; loss, and forecast future performance
         </p>
       </div>

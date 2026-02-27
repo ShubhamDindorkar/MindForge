@@ -9,35 +9,34 @@ import {
   FileText,
   Menu,
   X,
-  Bell,
   LogOut,
-  ChevronLeft,
+  Settings,
+  Boxes,
 } from "lucide-react";
 import { useAuth } from "@/_lib/auth-context";
 import { cn } from "@/_lib/utils";
 import { Button } from "@/_components/ui/button";
-import { Avatar, AvatarFallback } from "@/_components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/_components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/_components/ui/avatar";
 import { Separator } from "@/_components/ui/separator";
 
-const sidebarItems = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Inventory", href: "/admin/inventory", icon: Package },
-  { label: "Finance", href: "/admin/finance", icon: TrendingUp },
-  { label: "Reports", href: "/admin/reports", icon: FileText },
+const sidebarSections = [
+  {
+    title: "Overview",
+    items: [
+      { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    title: "Management",
+    items: [
+      { label: "Inventory", href: "/admin/inventory", icon: Package },
+      { label: "Finance", href: "/admin/finance", icon: TrendingUp },
+      { label: "Reports", href: "/admin/reports", icon: FileText },
+    ],
+  },
 ];
 
-function getPageTitle(pathname: string): string {
-  const item = sidebarItems.find((i) => pathname.startsWith(i.href));
-  return item?.label ?? "Admin";
-}
+const allItems = sidebarSections.flatMap((s) => s.items);
 
 function getInitials(name: string): string {
   return name
@@ -57,7 +56,6 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -74,6 +72,101 @@ export default function AdminLayout({
     return null;
   }
 
+  const SidebarContent = () => (
+    <>
+      {/* Sidebar header */}
+      <div className="flex h-14 items-center justify-between px-5">
+        <div className="flex items-center gap-2">
+          <Boxes className="h-5 w-5 text-foreground" />
+          <span className="text-lg font-medium tracking-tight text-foreground">
+            MindForge
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground md:hidden"
+          onClick={() => setMobileOpen(false)}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Nav sections */}
+      <nav className="flex-1 space-y-6 px-3 pt-4">
+        {sidebarSections.map((section) => (
+          <div key={section.title}>
+            <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
+              {section.title}
+            </p>
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => router.push(item.href)}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                      isActive
+                        ? "bg-muted text-foreground font-medium"
+                        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-[18px] w-[18px] shrink-0" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* Bottom section: Settings, User, Sign Out */}
+      <div className="mt-auto border-t border-border px-3 py-3 space-y-1">
+        <button
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+        >
+          <Settings className="h-[18px] w-[18px] shrink-0" />
+          <span>Settings</span>
+        </button>
+
+        <Separator className="my-2" />
+
+        <div className="flex items-center gap-3 px-3 py-2">
+          <Avatar className="h-8 w-8">
+            {user?.avatar ? (
+              <AvatarImage src={user.avatar} alt={user.name} />
+            ) : null}
+            <AvatarFallback className="bg-muted text-xs text-foreground">
+              {user ? getInitials(user.name) : "?"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="truncate text-sm font-medium text-foreground">
+              {user?.name}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {user?.email}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => {
+            logout();
+            router.replace("/login");
+          }}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+        >
+          <LogOut className="h-[18px] w-[18px] shrink-0" />
+          <span>Sign out</span>
+        </button>
+      </div>
+    </>
+  );
+
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Mobile overlay */}
@@ -84,138 +177,45 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — Desktop */}
+      <aside className="hidden md:flex w-[240px] shrink-0 flex-col border-r border-border bg-background">
+        <SidebarContent />
+      </aside>
+
+      {/* Sidebar — Mobile */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-background transition-all duration-300 md:relative md:z-auto",
-          sidebarOpen ? "w-64" : "w-16",
-          mobileOpen
-            ? "translate-x-0"
-            : "-translate-x-full md:translate-x-0"
+          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border bg-background transition-transform duration-300 md:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Sidebar header */}
-        <div className="flex h-14 items-center justify-between px-4">
-          {sidebarOpen && (
-            <span className="text-lg font-medium tracking-tight text-foreground">
-              MindForge
-            </span>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hidden text-muted-foreground hover:text-foreground md:inline-flex"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            <ChevronLeft
-              className={cn(
-                "h-4 w-4 transition-transform",
-                !sidebarOpen && "rotate-180"
-              )}
-            />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground md:hidden"
-            onClick={() => setMobileOpen(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <Separator className="bg-muted" />
-
-        {/* Nav items */}
-        <nav className="flex-1 space-y-1 px-2 py-4">
-          {sidebarItems.map((item) => {
-            const isActive = pathname.startsWith(item.href);
-            return (
-              <button
-                key={item.href}
-                onClick={() => router.push(item.href)}
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-muted text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <item.icon className="h-5 w-5 shrink-0" />
-                {sidebarOpen && <span>{item.label}</span>}
-              </button>
-            );
-          })}
-        </nav>
+        <SidebarContent />
       </aside>
 
       {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-4">
+        {/* Welcome header */}
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-6">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-foreground md:hidden"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground md:hidden"
               onClick={() => setMobileOpen(true)}
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <h1 className="text-lg font-medium">
-              {getPageTitle(pathname)}
+            <h1 className="text-base text-foreground">
+              Welcome, {user?.name?.split(" ")[0] ?? "User"}
             </h1>
           </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative text-muted-foreground hover:text-foreground"
-            >
-              <Bell className="h-5 w-5" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-foreground" />
-            </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-2 px-2"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-foreground text-sm text-primary-foreground">
-                      {user ? getInitials(user.name) : "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  {sidebarOpen && (
-                    <span className="hidden text-sm font-medium text-foreground lg:inline-block">
-                      {user?.name}
-                    </span>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-48 border-border bg-background text-foreground"
-              >
-                <DropdownMenuLabel className="text-muted-foreground">
-                  {user?.email}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-muted" />
-                <DropdownMenuItem
-                  onClick={() => {
-                    logout();
-                    router.replace("/login");
-                  }}
-                  className="cursor-pointer text-destructive focus:bg-muted focus:text-destructive"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+          >
+            <Settings className="h-[18px] w-[18px]" />
+          </Button>
         </header>
 
         {/* Page content */}

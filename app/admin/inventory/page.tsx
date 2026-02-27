@@ -231,12 +231,14 @@ export default function InventoryPage() {
     form.location !== "";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center gap-3">
-        <Package className="h-8 w-8 text-primary" />
+        <div className="rounded-xl bg-blue-50 p-2.5">
+          <Package className="h-6 w-6 text-blue-600" />
+        </div>
         <div>
-          <h1 className="text-3xl font-medium tracking-tight">Inventory</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-medium tracking-tight">Inventory</h1>
+          <p className="text-sm text-muted-foreground">
             Manage your stock items, quantities, and details.
           </p>
         </div>
@@ -282,7 +284,7 @@ export default function InventoryPage() {
         </Button>
       </div>
 
-      <Card>
+      <Card className="border border-border/60 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-medium">
             {sorted.length} item{sorted.length !== 1 ? "s" : ""} found

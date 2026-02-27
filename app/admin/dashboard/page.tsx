@@ -28,7 +28,7 @@ import {
   transactions,
   financialSummaries,
 } from "@/_lib/mock-data";
-import { formatCurrency, formatRelativeTime } from "@/_lib/utils";
+import { formatCurrency, formatRelativeTime, cn } from "@/_lib/utils";
 import {
   Card,
   CardHeader,
@@ -38,12 +38,12 @@ import {
 import { Badge } from "@/_components/ui/badge";
 
 const PIE_COLORS = [
-  "hsl(0,0%,12%)",
-  "hsl(0,0%,30%)",
-  "hsl(0,0%,48%)",
-  "hsl(0,0%,65%)",
-  "hsl(0,0%,78%)",
-  "hsl(0,0%,88%)",
+  "hsl(142, 71%, 45%)",
+  "hsl(217, 91%, 60%)",
+  "hsl(38, 92%, 50%)",
+  "hsl(340, 82%, 52%)",
+  "hsl(262, 83%, 58%)",
+  "hsl(0, 0%, 65%)",
 ];
 
 export default function AdminDashboardPage() {
@@ -98,6 +98,7 @@ export default function AdminDashboardPage() {
       icon: Package,
       trend: 4.2,
       up: true,
+      color: "bg-emerald-50 text-emerald-600",
     },
     {
       label: "Total Value",
@@ -105,6 +106,7 @@ export default function AdminDashboardPage() {
       icon: DollarSign,
       trend: 2.8,
       up: true,
+      color: "bg-blue-50 text-blue-600",
     },
     {
       label: "Monthly Revenue",
@@ -112,6 +114,7 @@ export default function AdminDashboardPage() {
       icon: TrendingUp,
       trend: Math.abs(revenueTrend),
       up: revenueTrend >= 0,
+      color: "bg-amber-50 text-amber-600",
     },
     {
       label: "Monthly Profit",
@@ -119,32 +122,34 @@ export default function AdminDashboardPage() {
       icon: latestMonth.profit >= (prevMonth?.profit ?? 0) ? TrendingUp : TrendingDown,
       trend: Math.abs(profitTrend),
       up: profitTrend >= 0,
+      color: "bg-rose-50 text-rose-600",
     },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
-          <Card key={kpi.label}>
-            <CardContent className="p-6">
+          <Card key={kpi.label} className="border border-border/60 shadow-none">
+            <CardContent className="p-5">
               <div className="flex items-center justify-between">
-                <div className="rounded-md bg-muted p-2">
-                  <kpi.icon className="h-5 w-5 text-foreground" />
+                <div className={cn("rounded-xl p-2.5", kpi.color)}>
+                  <kpi.icon className="h-5 w-5" />
                 </div>
                 <Badge
                   variant="secondary"
-                  className={
+                  className={cn(
+                    "border-0 text-xs",
                     kpi.up
-                      ? "border-0 bg-muted text-foreground"
-                      : "border-0 bg-destructive/10 text-destructive"
-                  }
+                      ? "bg-emerald-50 text-emerald-600"
+                      : "bg-red-50 text-red-600"
+                  )}
                 >
                   {kpi.up ? (
-                    <ArrowUpRight className="mr-1 h-3 w-3" />
+                    <ArrowUpRight className="mr-0.5 h-3 w-3" />
                   ) : (
-                    <ArrowDownRight className="mr-1 h-3 w-3" />
+                    <ArrowDownRight className="mr-0.5 h-3 w-3" />
                   )}
                   {kpi.trend.toFixed(1)}%
                 </Badge>
@@ -152,7 +157,7 @@ export default function AdminDashboardPage() {
               <p className="mt-4 text-2xl font-medium text-foreground">
                 {kpi.value}
               </p>
-              <p className="text-sm text-muted-foreground">{kpi.label}</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">{kpi.label}</p>
             </CardContent>
           </Card>
         ))}
@@ -161,7 +166,7 @@ export default function AdminDashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Revenue vs Cost Area Chart */}
-        <Card>
+        <Card className="border border-border/60 shadow-none">
           <CardHeader>
             <CardTitle className="text-sm font-medium text-foreground">
               Revenue vs Costs
@@ -181,12 +186,12 @@ export default function AdminDashboardPage() {
                     >
                       <stop
                         offset="0%"
-                        stopColor="hsl(0, 0%, 12%)"
+                        stopColor="hsl(217, 91%, 60%)"
                         stopOpacity={0.3}
                       />
                       <stop
                         offset="100%"
-                        stopColor="hsl(0, 0%, 12%)"
+                        stopColor="hsl(217, 91%, 60%)"
                         stopOpacity={0}
                       />
                     </linearGradient>
@@ -199,12 +204,12 @@ export default function AdminDashboardPage() {
                     >
                       <stop
                         offset="0%"
-                        stopColor="hsl(0, 0%, 55%)"
+                        stopColor="hsl(142, 71%, 45%)"
                         stopOpacity={0.3}
                       />
                       <stop
                         offset="100%"
-                        stopColor="hsl(0, 0%, 55%)"
+                        stopColor="hsl(142, 71%, 45%)"
                         stopOpacity={0}
                       />
                     </linearGradient>
@@ -239,7 +244,7 @@ export default function AdminDashboardPage() {
                   <Area
                     type="monotone"
                     dataKey="revenue"
-                    stroke="hsl(0, 0%, 12%)"
+                    stroke="hsl(217, 91%, 60%)"
                     strokeWidth={2}
                     fill="url(#revenueGrad)"
                     name="Revenue"
@@ -247,7 +252,7 @@ export default function AdminDashboardPage() {
                   <Area
                     type="monotone"
                     dataKey="costs"
-                    stroke="hsl(0, 0%, 55%)"
+                    stroke="hsl(142, 71%, 45%)"
                     strokeWidth={2}
                     fill="url(#costsGrad)"
                     name="Costs"
@@ -259,7 +264,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* Inventory by Category Pie Chart */}
-        <Card>
+        <Card className="border border-border/60 shadow-none">
           <CardHeader>
             <CardTitle className="text-sm font-medium text-foreground">
               Inventory Value by Category
@@ -322,7 +327,7 @@ export default function AdminDashboardPage() {
       {/* Bottom Row */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Low Stock Alerts */}
-        <Card>
+        <Card className="border border-border/60 shadow-none">
           <CardHeader className="flex-row items-center gap-2 space-y-0">
             <AlertTriangle className="h-4 w-4 text-foreground" />
             <CardTitle className="text-sm font-medium text-foreground">
@@ -381,7 +386,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         {/* Recent Activity */}
-        <Card>
+        <Card className="border border-border/60 shadow-none">
           <CardHeader className="flex-row items-center gap-2 space-y-0">
             <Activity className="h-4 w-4 text-foreground" />
             <CardTitle className="text-sm font-medium text-foreground">

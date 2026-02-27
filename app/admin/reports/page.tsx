@@ -109,11 +109,11 @@ export default function ReportsPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-medium tracking-tight">Reports</h1>
+          <p className="text-sm text-muted-foreground">
             Generate and export inventory reports
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function ReportsPage() {
         </Badge>
       </div>
 
-      <Card>
+      <Card className="border border-border/60 shadow-none">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Date Range</CardTitle>
           <CardDescription>
@@ -166,11 +166,11 @@ export default function ReportsPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Inventory Valuation Report */}
-        <Card className="flex flex-col">
+        <Card className="flex flex-col border border-border/60 shadow-none">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
-                <Package className="h-5 w-5 text-primary" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
+                <Package className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <CardTitle className="text-base">
@@ -204,11 +204,11 @@ export default function ReportsPage() {
         </Card>
 
         {/* Stock Movement Report */}
-        <Card className="flex flex-col">
+        <Card className="flex flex-col border border-border/60 shadow-none">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
-                <ArrowLeftRight className="h-5 w-5 text-primary" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50">
+                <ArrowLeftRight className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <CardTitle className="text-base">Stock Movement</CardTitle>
@@ -244,11 +244,11 @@ export default function ReportsPage() {
         </Card>
 
         {/* Financial Summary Report */}
-        <Card className="flex flex-col">
+        <Card className="flex flex-col border border-border/60 shadow-none">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
-                <DollarSign className="h-5 w-5 text-primary" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50">
+                <DollarSign className="h-5 w-5 text-amber-600" />
               </div>
               <div>
                 <CardTitle className="text-base">Financial Summary</CardTitle>
