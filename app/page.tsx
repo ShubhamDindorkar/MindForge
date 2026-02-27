@@ -8,10 +8,22 @@ import {
   FileText,
   ArrowRight,
   ChevronRight,
-  Boxes,
   Zap,
+  Boxes,
 } from "lucide-react";
 import { Button } from "@/_components/ui/button";
+import {
+  Navbar,
+  NavBody,
+  NavItems,
+  MobileNav,
+  MobileNavHeader,
+  MobileNavMenu,
+  MobileNavToggle,
+  NavbarLogo,
+  NavbarButton,
+} from "@/_components/navbar";
+import { useState } from "react";
 
 const features = [
   {
@@ -58,22 +70,68 @@ const steps = [
   },
 ];
 
+const navItems = [
+  { name: "Product", link: "#features" },
+  { name: "How it works", link: "#how-it-works" },
+  { name: "For teams", link: "#features" },
+];
+
 export default function LandingPage() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
-      <nav className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <div className="flex items-center gap-2">
-            <Boxes className="h-7 w-7 text-primary" />
-            <span className="text-xl font-medium">MindForge</span>
+      <Navbar>
+        <NavBody>
+          <NavbarLogo />
+          <NavItems items={navItems} />
+          <div className="hidden items-center gap-2 lg:flex">
+            <NavbarButton variant="secondary" href="/login">
+              Log in
+            </NavbarButton>
+            <NavbarButton href="/login">
+              Get started
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </NavbarButton>
           </div>
-          <Link href="/login">
-            <Button size="sm">
-              Sign In <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-      </nav>
+        </NavBody>
+        <MobileNav>
+          <MobileNavHeader>
+            <NavbarLogo />
+            <MobileNavToggle
+              isOpen={mobileOpen}
+              onClick={() => setMobileOpen((v) => !v)}
+            />
+          </MobileNavHeader>
+          <MobileNavMenu isOpen={mobileOpen} onClose={() => setMobileOpen(false)}>
+            <div className="flex flex-col gap-2">
+              {navItems.map((item) => (
+                <a
+                  key={item.link}
+                  href={item.link}
+                  className="rounded-full px-3 py-2 text-sm text-foreground hover:bg-muted"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {item.name}
+                </a>
+              ))}
+            </div>
+            <div className="mt-3 flex flex-col gap-2">
+              <NavbarButton
+                variant="secondary"
+                href="/login"
+                className="w-full justify-center"
+              >
+                Log in
+              </NavbarButton>
+              <NavbarButton href="/login" className="w-full justify-center">
+                Get started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </NavbarButton>
+            </div>
+          </MobileNavMenu>
+        </MobileNav>
+      </Navbar>
 
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
@@ -134,7 +192,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="border-y bg-card/50 py-24">
+      <section id="how-it-works" className="border-y bg-card/50 py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-medium sm:text-4xl">
