@@ -22,7 +22,7 @@ import {
   NavbarLogo,
   NavbarButton,
 } from "@/_components/navbar";
-import { useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import SplashCursor from "./components/SplashCursor";
 
 const features = [
@@ -78,22 +78,34 @@ const navItems = [
 
 export default function LandingPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-  const handleHoverStart = () => {
-    setIsHovered(true);
-    if (svgRef.current && (svgRef.current as any).pauseAnimations) {
-      (svgRef.current as any).pauseAnimations();
-    }
-  };
+  useEffect(() => {
+    const onScroll = () => {
+      const section = sectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const sectionHeight = section.offsetHeight;
+      const viewHeight = window.innerHeight;
+      if (rect.top > viewHeight) {
+        setScrollProgress(0);
+        return;
+      }
+      const scrolledInto = viewHeight - rect.top;
+      const progress = Math.min(1, Math.max(0, scrolledInto / sectionHeight));
+      setScrollProgress(progress);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const handleHoverEnd = () => {
-    setIsHovered(false);
-    if (svgRef.current && (svgRef.current as any).unpauseAnimations) {
-      (svgRef.current as any).unpauseAnimations();
-    }
-  };
+  const stepCount = 3;
+  const stepIndex = Math.min(
+    stepCount - 1,
+    Math.floor(scrollProgress * stepCount)
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -215,209 +227,79 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="how-it-works" className="border-y bg-card/50 py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-medium sm:text-4xl">
-              How it works
-            </h2>
-            <p className="mx-auto max-w-2xl text-muted-foreground">
-              Three simple steps from scan to insight.
-            </p>
-          </div>
-          <div className="mb-12 flex justify-center">
-            <svg
-              viewBox="0 0 400 180"
-              className="h-auto w-full max-w-xl"
-              xmlns="http://www.w3.org/2000/svg"
-              xmlnsXlink="http://www.w3.org/1999/xlink"
-              ref={svgRef}
+      <section id="how-it-works" ref={sectionRef} className="border-y bg-card/50" style={{ minHeight: "300vh" }}>
+        <div className="mx-auto max-w-6xl px-6 pt-16 pb-4 text-center">
+          <h2 className="mb-2 text-3xl font-medium sm:text-4xl">
+            How it works
+          </h2>
+          <p className="text-muted-foreground">
+            Three simple steps from scan to insight.
+          </p>
+        </div>
+        <div className="sticky top-0 flex min-h-screen flex-col items-center justify-center gap-8 px-4 py-16 md:flex-row md:gap-12 md:px-8 lg:px-12">
+          {/* Left: gradient card with stacked scroll-cards.svg */}
+          <div className="flex w-full flex-shrink-0 justify-center md:w-[45%] lg:w-[42%]">
+            <div
+              className="relative aspect-[4/5] w-full max-w-md rounded-3xl shadow-xl md:aspect-square"
+              style={{
+                background: "linear-gradient(180deg, #B8FFD0 0%, #FFF6C9 45%, #E8EEFF 100%)",
+              }}
             >
-              {/* Conveyor belt from public/svgs/conveyor.svg */}
-              <image
-                href="/svgs/conveyor.svg"
-                x="0"
-                y="100"
-                width="400"
-                height="60"
-                preserveAspectRatio="xMidYMid slice"
-              />
-
-              {/* Multiple boxes travelling along the belt and opening in sequence */}
-              <g>
-                {/* Box 1 */}
-                <g>
-                  {/* Closed box */}
-                  <g>
-                    <image
-                      href="/svgs/close.svg"
-                      x="140"
-                      y="30"
-                      width="100"
-                      height="100"
-                      preserveAspectRatio="xMidYMid meet"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="1;1;0;0"
-                      keyTimes="0;0.35;0.45;1"
-                      dur="6s"
-                      repeatCount="indefinite"
-                    />
-                  </g>
-                  {/* Open box */}
-                  <g>
-                    <image
-                      href="/svgs/open.svg"
-                      x="140"
-                      y="30"
-                      width="100"
-                      height="100"
-                      preserveAspectRatio="xMidYMid meet"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="0;0;1;1"
-                      keyTimes="0;0.35;0.45;1"
-                      dur="6s"
-                      repeatCount="indefinite"
-                    />
-                  </g>
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    values="-200; 420"
-                    keyTimes="0;1"
-                    dur="6s"
-                    begin="0s"
-                    repeatCount="indefinite"
-                  />
-                </g>
-
-                {/* Box 2 (staggered, lifts on hover) */}
-                <g
-                  transform={isHovered ? "translate(0,-10)" : "translate(0,0)"}
-                  onMouseEnter={handleHoverStart}
-                  onMouseLeave={handleHoverEnd}
-                  style={{ cursor: "pointer" }}
+              {[0, 1, 2].map((layer) => (
+                <div
+                  key={layer}
+                  className="absolute inset-0 flex items-center justify-center p-6 transition-all duration-500 ease-out md:p-10"
+                  style={{
+                    transform: `translateY(${layer * 28}px)`,
+                    zIndex: 2 - layer,
+                    opacity: layer <= stepIndex ? 1 : 0,
+                    filter: layer > 0 ? "drop-shadow(0 4px 12px rgba(0,0,0,0.06))" : "drop-shadow(0 8px 24px rgba(0,0,0,0.08))",
+                  }}
                 >
-                  {/* Closed box */}
-                  <g>
-                    <image
-                      href="/svgs/close.svg"
-                      x="140"
-                      y="30"
-                      width="100"
-                      height="100"
-                      preserveAspectRatio="xMidYMid meet"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="1;1;0;0"
-                      keyTimes="0;0.35;0.45;1"
-                      dur="6s"
-                      begin="1.2s"
-                      repeatCount="indefinite"
-                    />
-                  </g>
-                  {/* Open box */}
-                  <g>
-                    <image
-                      href="/svgs/open.svg"
-                      x="140"
-                      y="30"
-                      width="100"
-                      height="100"
-                      preserveAspectRatio="xMidYMid meet"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="0;0;1;1"
-                      keyTimes="0;0.35;0.45;1"
-                      dur="6s"
-                      begin="1.2s"
-                      repeatCount="indefinite"
-                    />
-                  </g>
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    values="-200; 420"
-                    keyTimes="0;1"
-                    dur="6s"
-                    begin="1.2s"
-                    repeatCount="indefinite"
+                  <img
+                    src="/svgs/scroll-cards.svg"
+                    alt=""
+                    className="h-auto w-full max-w-[280px] object-contain opacity-95 md:max-w-[320px]"
+                    width={320}
+                    height={155}
                   />
-                </g>
-
-                {/* Box 3 (staggered) */}
-                <g>
-                  {/* Closed box */}
-                  <g>
-                    <image
-                      href="/svgs/close.svg"
-                      x="140"
-                      y="30"
-                      width="100"
-                      height="100"
-                      preserveAspectRatio="xMidYMid meet"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="1;1;0;0"
-                      keyTimes="0;0.35;0.45;1"
-                      dur="6s"
-                      begin="2.4s"
-                      repeatCount="indefinite"
-                    />
-                  </g>
-                  {/* Open box */}
-                  <g>
-                    <image
-                      href="/svgs/open.svg"
-                      x="140"
-                      y="30"
-                      width="100"
-                      height="100"
-                      preserveAspectRatio="xMidYMid meet"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="0;0;1;1"
-                      keyTimes="0;0.35;0.45;1"
-                      dur="6s"
-                      begin="2.4s"
-                      repeatCount="indefinite"
-                    />
-                  </g>
-                  <animateTransform
-                    attributeName="transform"
-                    type="translate"
-                    values="-200; 420"
-                    keyTimes="0;1"
-                    dur="6s"
-                    begin="2.4s"
-                    repeatCount="indefinite"
-                  />
-                </g>
-              </g>
-            </svg>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-3">
-            {steps.map((step, i) => (
-              <div key={step.number} className="relative text-center">
-                {i < steps.length - 1 && (
-                  <div className="absolute right-0 top-8 hidden h-px w-full bg-gradient-to-r from-border to-transparent sm:block" />
-                )}
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-2xl font-medium text-foreground">
-                  {step.number}
                 </div>
-                <h3 className="mb-2 text-xl font-normal">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {step.description}
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          {/* Right: text fades and changes per step */}
+          <div className="relative flex w-full flex-col justify-center md:w-[50%] md:max-w-xl">
+            <div className="relative min-h-[200px] w-full md:min-h-[240px]">
+              {steps.map((step, index) => (
+                <div
+                  key={step.number}
+                  className="absolute inset-0 flex flex-col justify-center px-4 text-center md:px-0 md:text-left"
+                  style={{
+                    opacity: index === stepIndex ? 1 : 0,
+                    pointerEvents: index === stepIndex ? "auto" : "none",
+                    transition: "opacity 0.5s ease-out",
+                  }}
+                >
+                  <h3 className="mb-3 text-2xl font-medium text-foreground md:text-3xl">
+                    {step.title}
+                  </h3>
+                  <p className="text-muted-foreground md:text-lg">
+                    {step.description}
+                  </p>
+                  <div className="mt-6 flex gap-2 justify-center md:justify-start">
+                    {[0, 1, 2].map((i) => (
+                      <span
+                        key={i}
+                        className={`h-2 rounded-full transition-all ${
+                          i === stepIndex ? "w-8 bg-primary" : "w-2 bg-muted-foreground/30"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
