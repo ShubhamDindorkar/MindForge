@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 import {
   LayoutDashboard,
   Package,
@@ -160,14 +161,16 @@ export default function AdminLayout({
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   /* Lenis smooth scroll on the admin main panel */
   useEffect(() => {
-    const el = mainRef.current;
-    if (!el) return;
+    const wrapper = mainRef.current;
+    const content = contentRef.current;
+    if (!wrapper || !content) return;
     const lenis = new Lenis({
-      wrapper: el,
-      content: el,
+      wrapper,
+      content,
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       touchMultiplier: 2,
@@ -298,8 +301,10 @@ export default function AdminLayout({
         </header>
 
         {/* Page content */}
-        <main ref={mainRef} className="flex-1 overflow-y-auto min-h-0 p-4 pt-0 sm:p-6 sm:pt-0">
-          {children}
+        <main ref={mainRef} className="flex-1 overflow-y-auto min-h-0">
+          <div ref={contentRef} className="p-4 pt-0 sm:p-6 sm:pt-0">
+            {children}
+          </div>
         </main>
       </div>
     </div>
