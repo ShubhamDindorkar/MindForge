@@ -1,0 +1,205 @@
+"use client";
+
+import Link from "next/link";
+import {
+  Package,
+  ScanLine,
+  BarChart3,
+  FileText,
+  ArrowRight,
+  ChevronRight,
+  Boxes,
+  Zap,
+} from "lucide-react";
+import { Button } from "@/_components/ui/button";
+
+const features = [
+  {
+    icon: Package,
+    title: "Inventory Tracking",
+    description:
+      "Real-time stock levels across all warehouses. Know exactly what you have and where it is.",
+  },
+  {
+    icon: ScanLine,
+    title: "QR Code Scanning",
+    description:
+      "Workers scan items instantly with their phones. Stock in, stock out, zero friction.",
+  },
+  {
+    icon: BarChart3,
+    title: "Financial Insights",
+    description:
+      "Cost tracking, profit & loss, and forecasting built right into your inventory flow.",
+  },
+  {
+    icon: FileText,
+    title: "Smart Reports",
+    description:
+      "Valuation, movement, and financial reports generated with a single click.",
+  },
+];
+
+const steps = [
+  {
+    number: "01",
+    title: "Scan",
+    description: "Workers scan QR codes on inventory items using the mobile app.",
+  },
+  {
+    number: "02",
+    title: "Track",
+    description: "Every movement is logged. Stock levels update automatically.",
+  },
+  {
+    number: "03",
+    title: "Analyze",
+    description: "Admins see dashboards, financials, and forecasts in real time.",
+  },
+];
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-background">
+      <nav className="fixed top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+          <div className="flex items-center gap-2">
+            <Boxes className="h-7 w-7 text-primary" />
+            <span className="text-xl font-bold">MindForge</span>
+          </div>
+          <Link href="/login">
+            <Button size="sm">
+              Sign In <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </nav>
+
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
+        <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-3xl" />
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-sm text-muted-foreground">
+            <Zap className="h-4 w-4 text-primary" />
+            Inventory meets financial intelligence
+          </div>
+          <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+            Streamline Your{" "}
+            <span className="bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
+              Inventory
+            </span>
+            .<br />
+            Master Your{" "}
+            <span className="bg-gradient-to-r from-emerald-400 to-primary bg-clip-text text-transparent">
+              Finances
+            </span>
+            .
+          </h1>
+          <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
+            The all-in-one platform that connects warehouse operations to financial
+            planning. Track stock, scan QR codes, and see your bottom line - all
+            in one place.
+          </p>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link href="/login">
+              <Button size="lg" className="text-base">
+                Get Started <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <a href="#features">
+              <Button variant="outline" size="lg" className="text-base">
+                Learn More <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" className="py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+              Everything you need to run your warehouse
+            </h2>
+            <p className="mx-auto max-w-2xl text-muted-foreground">
+              From the loading dock to the boardroom. One platform, total visibility.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map((feature) => (
+              <div
+                key={feature.title}
+                className="group rounded-lg border bg-card p-6 transition-colors hover:border-primary/50"
+              >
+                <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3">
+                  <feature.icon className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="mb-2 font-semibold">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y bg-card/50 py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+              How it works
+            </h2>
+            <p className="mx-auto max-w-2xl text-muted-foreground">
+              Three simple steps from scan to insight.
+            </p>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-3">
+            {steps.map((step, i) => (
+              <div key={step.number} className="relative text-center">
+                {i < steps.length - 1 && (
+                  <div className="absolute right-0 top-8 hidden h-px w-full bg-gradient-to-r from-border to-transparent sm:block" />
+                )}
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
+                  {step.number}
+                </div>
+                <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+            Ready to take control?
+          </h2>
+          <p className="mb-8 text-muted-foreground">
+            Join MindForge and transform how you manage inventory and finances.
+          </p>
+          <Link href="/login">
+            <Button size="lg" className="text-base">
+              Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      <footer className="border-t py-12">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
+          <div className="flex items-center gap-2">
+            <Boxes className="h-5 w-5 text-primary" />
+            <span className="font-semibold">MindForge</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} MindForge. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
