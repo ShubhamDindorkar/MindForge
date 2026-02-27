@@ -8,6 +8,7 @@ import {
   ArrowRight,
   ChevronRight,
   Boxes,
+  Brain,
 } from "lucide-react";
 import { Button } from "@/_components/ui/button";
 import {
@@ -43,23 +44,29 @@ const features = [
     description:
       "Valuation, movement, and financial reports generated with a single click.",
   },
+  {
+    icon: Brain,
+    title: "AI-Powered Insights",
+    description:
+      "Smart recommendations for reorder points, anomaly detection, and overstock—so you act on data, not guesswork.",
+  },
 ];
 
 const steps = [
   {
     number: "01",
-    title: "Capture",
-    description: "Record inventory movements and updates directly in the system.",
+    title: "Record",
+    description: "Log stock-in, stock-out, and cost updates as they happen. Every movement is recorded in one place.",
   },
   {
     number: "02",
-    title: "Sync",
-    description: "Stock levels and costs stay in sync across all warehouses.",
+    title: "Unify",
+    description: "One source of truth. Inventory levels and finances stay in sync across warehouses and teams.",
   },
   {
     number: "03",
-    title: "Analyze",
-    description: "See real-time dashboards, financials, and forecasts in one place.",
+    title: "Insight",
+    description: "Real-time dashboards, AI insights, and reports. See the full picture and make decisions with confidence.",
   },
 ];
 
@@ -130,7 +137,7 @@ export default function LandingPage() {
   }, []);
 
   const stepCount = 3;
-  // Give "Capture" more scroll before switching: 40% → Capture, 30% → Sync, 30% → Analyze
+  // Give "Record" more scroll before switching: 40% → Record, 30% → Unify, 30% → Insight
   const stepThresholds = [0.4, 0.7];
   const stepIndex = (() => {
     if (scrollProgress < stepThresholds[0]) return 0;
@@ -290,9 +297,9 @@ export default function LandingPage() {
                   <img
                     src="/svgs/scroll-cards.svg"
                     alt=""
-                    className="h-auto w-full max-w-[200px] object-contain opacity-95 md:max-w-[240px]"
-                    width={240}
-                    height={108}
+                    className="mx-auto h-auto max-w-[280px] object-contain opacity-95 md:max-w-[340px]"
+                    width={340}
+                    height={153}
                   />
                 </div>
               ))}
