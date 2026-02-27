@@ -22,7 +22,8 @@ import {
   NavbarLogo,
   NavbarButton,
 } from "@/_components/navbar";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import LiquidEther from "@/_components/LiquidEther";
 
 const features = [
   {
@@ -77,6 +78,22 @@ const navItems = [
 
 export default function LandingPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  const handleHoverStart = () => {
+    setIsHovered(true);
+    if (svgRef.current && (svgRef.current as any).pauseAnimations) {
+      (svgRef.current as any).pauseAnimations();
+    }
+  };
+
+  const handleHoverEnd = () => {
+    setIsHovered(false);
+    if (svgRef.current && (svgRef.current as any).unpauseAnimations) {
+      (svgRef.current as any).unpauseAnimations();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -138,6 +155,31 @@ export default function LandingPage() {
       </Navbar>
 
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden -mt-16">
+        {/* Liquid ether background */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{ width: "100%", height: "100%", minHeight: 600 }}
+        >
+          <LiquidEther
+            colors={["#FDFBF1", "#FFF6C9", "#D8FFE4", "#B8FFD0"]}
+            mouseForce={11}
+            cursorSize={55}
+            isViscous
+            viscous={50}
+            iterationsViscous={47}
+            iterationsPoisson={32}
+            resolution={0.5}
+            isBounce={false}
+            autoDemo
+            autoSpeed={0.5}
+            autoIntensity={2.2}
+            takeoverDuration={0.25}
+            autoResumeDelay={3000}
+            autoRampDuration={0.6}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </div>
+
         {/* Top spotlight gradient */}
         <div className="pointer-events-none absolute inset-x-0 top-0">
           <div className="h-52 w-full rounded-b-[999px] bg-gradient-to-b from-[#B8FFD0] to-[#FFF6C9] blur-2xl opacity-100" />
@@ -206,6 +248,184 @@ export default function LandingPage() {
             <p className="mx-auto max-w-2xl text-muted-foreground">
               Three simple steps from scan to insight.
             </p>
+          </div>
+          <div className="mb-12 flex justify-center">
+            <svg
+              viewBox="0 0 400 180"
+              className="h-auto w-full max-w-xl"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+              ref={svgRef}
+            >
+              {/* Conveyor belt from public/svgs/conveyor.svg */}
+              <image
+                href="/svgs/conveyor.svg"
+                x="0"
+                y="100"
+                width="400"
+                height="60"
+                preserveAspectRatio="xMidYMid slice"
+              />
+
+              {/* Multiple boxes travelling along the belt and opening in sequence */}
+              <g>
+                {/* Box 1 */}
+                <g>
+                  {/* Closed box */}
+                  <g>
+                    <image
+                      href="/svgs/close.svg"
+                      x="140"
+                      y="30"
+                      width="100"
+                      height="100"
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="1;1;0;0"
+                      keyTimes="0;0.35;0.45;1"
+                      dur="6s"
+                      repeatCount="indefinite"
+                    />
+                  </g>
+                  {/* Open box */}
+                  <g>
+                    <image
+                      href="/svgs/open.svg"
+                      x="140"
+                      y="30"
+                      width="100"
+                      height="100"
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="0;0;1;1"
+                      keyTimes="0;0.35;0.45;1"
+                      dur="6s"
+                      repeatCount="indefinite"
+                    />
+                  </g>
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values="-200; 420"
+                    keyTimes="0;1"
+                    dur="6s"
+                    begin="0s"
+                    repeatCount="indefinite"
+                  />
+                </g>
+
+                {/* Box 2 (staggered, lifts on hover) */}
+                <g
+                  transform={isHovered ? "translate(0,-10)" : "translate(0,0)"}
+                  onMouseEnter={handleHoverStart}
+                  onMouseLeave={handleHoverEnd}
+                  style={{ cursor: "pointer" }}
+                >
+                  {/* Closed box */}
+                  <g>
+                    <image
+                      href="/svgs/close.svg"
+                      x="140"
+                      y="30"
+                      width="100"
+                      height="100"
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="1;1;0;0"
+                      keyTimes="0;0.35;0.45;1"
+                      dur="6s"
+                      begin="1.2s"
+                      repeatCount="indefinite"
+                    />
+                  </g>
+                  {/* Open box */}
+                  <g>
+                    <image
+                      href="/svgs/open.svg"
+                      x="140"
+                      y="30"
+                      width="100"
+                      height="100"
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="0;0;1;1"
+                      keyTimes="0;0.35;0.45;1"
+                      dur="6s"
+                      begin="1.2s"
+                      repeatCount="indefinite"
+                    />
+                  </g>
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values="-200; 420"
+                    keyTimes="0;1"
+                    dur="6s"
+                    begin="1.2s"
+                    repeatCount="indefinite"
+                  />
+                </g>
+
+                {/* Box 3 (staggered) */}
+                <g>
+                  {/* Closed box */}
+                  <g>
+                    <image
+                      href="/svgs/close.svg"
+                      x="140"
+                      y="30"
+                      width="100"
+                      height="100"
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="1;1;0;0"
+                      keyTimes="0;0.35;0.45;1"
+                      dur="6s"
+                      begin="2.4s"
+                      repeatCount="indefinite"
+                    />
+                  </g>
+                  {/* Open box */}
+                  <g>
+                    <image
+                      href="/svgs/open.svg"
+                      x="140"
+                      y="30"
+                      width="100"
+                      height="100"
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="0;0;1;1"
+                      keyTimes="0;0.35;0.45;1"
+                      dur="6s"
+                      begin="2.4s"
+                      repeatCount="indefinite"
+                    />
+                  </g>
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values="-200; 420"
+                    keyTimes="0;1"
+                    dur="6s"
+                    begin="2.4s"
+                    repeatCount="indefinite"
+                  />
+                </g>
+              </g>
+            </svg>
           </div>
           <div className="grid gap-8 sm:grid-cols-3">
             {steps.map((step, i) => (
