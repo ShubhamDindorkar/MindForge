@@ -45,7 +45,7 @@ export default function SettingsPage() {
       <Card className="border-border">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-foreground">
               <User className="h-[18px] w-[18px]" />
             </div>
             <div>
@@ -161,7 +161,7 @@ export default function SettingsPage() {
       <Card className="border-border">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-foreground">
               <Palette className="h-[18px] w-[18px]" />
             </div>
             <div>

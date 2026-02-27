@@ -265,8 +265,8 @@ export default function InventoryPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="rounded-xl bg-blue-50 p-2 sm:p-2.5">
-          <Package className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+        <div className="rounded-xl bg-gray-100 p-2 sm:p-2.5">
+          <Package className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
         </div>
         <div>
           <h1 className="text-xl font-medium tracking-tight sm:text-2xl">Inventory</h1>
@@ -350,7 +350,7 @@ export default function InventoryPage() {
                   ))}
                   <th className="px-4 py-3 text-left font-medium">
                     <span className="inline-flex items-center gap-1">
-                      <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+                      <Sparkles className="h-3.5 w-3.5 text-foreground" />
                       AI
                     </span>
                   </th>

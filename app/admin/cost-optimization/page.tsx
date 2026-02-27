@@ -75,18 +75,18 @@ export default function CostOptimizationPage() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border-border bg-gray-50">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-blue-700 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-foreground flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
               Total Capital Locked
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">
+            <div className="text-2xl font-bold text-foreground">
               {formatCurrency(data.total_capital_locked)}
             </div>
-            <p className="text-xs text-blue-600 mt-1">Current inventory value</p>
+            <p className="text-xs text-muted-foreground mt-1">Current inventory value</p>
           </CardContent>
         </Card>
 
@@ -144,7 +144,7 @@ export default function CostOptimizationPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-600" />
+            <Sparkles className="w-5 h-5 text-foreground" />
             Monthly Holding Cost Analysis
           </CardTitle>
         </CardHeader>
@@ -167,10 +167,10 @@ export default function CostOptimizationPage() {
       </Card>
 
       {/* AI Recommendations */}
-      <Card className="border-purple-200">
+      <Card className="border-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-600" />
+            <Sparkles className="w-5 h-5 text-foreground" />
             AI-Powered Recommendations
           </CardTitle>
         </CardHeader>
@@ -189,7 +189,7 @@ export default function CostOptimizationPage() {
               {data.recommendations.map((rec, idx) => (
                 <div
                   key={idx}
-                  className="p-4 rounded-lg border bg-gradient-to-r from-purple-50 to-pink-50 hover:shadow-md transition-shadow"
+                  className="p-4 rounded-lg border bg-gradient-to-r from-gray-50 to-slate-50 hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">

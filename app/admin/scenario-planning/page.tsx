@@ -62,10 +62,10 @@ export default function ScenarioPlanningPage() {
       </div>
 
       {/* Controls */}
-      <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+      <Card className="border-border bg-gradient-to-br from-gray-50 to-slate-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-purple-600" />
+            <Zap className="w-5 h-5 text-foreground" />
             Scenario Parameters
           </CardTitle>
         </CardHeader>
@@ -74,7 +74,7 @@ export default function ScenarioPlanningPage() {
           <div>
             <div className="flex justify-between mb-2">
               <label className="font-medium">Demand Change</label>
-              <span className="font-semibold text-purple-700">{formatPercent(demandModifier)}</span>
+              <span className="font-semibold text-foreground">{formatPercent(demandModifier)}</span>
             </div>
             <Slider
               value={[demandModifier]}
@@ -95,7 +95,7 @@ export default function ScenarioPlanningPage() {
           <div>
             <div className="flex justify-between mb-2">
               <label className="font-medium">Lead Time Change</label>
-              <span className="font-semibold text-blue-700">{formatPercent(leadTimeModifier)}</span>
+              <span className="font-semibold text-foreground">{formatPercent(leadTimeModifier)}</span>
             </div>
             <Slider
               value={[leadTimeModifier]}
@@ -187,10 +187,10 @@ export default function ScenarioPlanningPage() {
                   <p className="text-sm text-orange-600 mt-1">New Stockout Risks</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-700">
+                  <div className="text-3xl font-bold text-foreground">
                     ₹{data.overall_impact.capital_change.toLocaleString()}
                   </div>
-                  <p className="text-sm text-blue-600 mt-1">Capital Change</p>
+                  <p className="text-sm text-muted-foreground mt-1">Capital Change</p>
                 </div>
               </div>
             </CardContent>
@@ -247,7 +247,7 @@ export default function ScenarioPlanningPage() {
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{sku.current.avg_daily_demand.toFixed(1)}</span>
                             <ArrowRight className="w-3 h-3 text-muted-foreground" />
-                            <span className="font-bold text-purple-700">
+                            <span className="font-bold text-foreground">
                               {sku.projected.avg_daily_demand.toFixed(1)}
                             </span>
                           </div>
@@ -257,7 +257,7 @@ export default function ScenarioPlanningPage() {
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{sku.current.days_until_stockout}</span>
                             <ArrowRight className="w-3 h-3 text-muted-foreground" />
-                            <span className="font-bold text-blue-700">
+                            <span className="font-bold text-foreground">
                               {sku.projected.days_until_stockout}
                             </span>
                           </div>

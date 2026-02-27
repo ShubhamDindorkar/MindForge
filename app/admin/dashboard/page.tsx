@@ -149,7 +149,7 @@ export default function AdminDashboardPage() {
       icon: DollarSign,
       trend: 2.8,
       up: true,
-      color: "bg-blue-50 text-blue-600",
+      color: "bg-gray-50 text-foreground",
     },
     {
       label: "Monthly Revenue",
@@ -208,14 +208,14 @@ export default function AdminDashboardPage() {
 
       {/* AI Insights Section */}
       <Card className="border border-border/60 shadow-none overflow-hidden">
-        <CardHeader className="flex-row items-center gap-2 space-y-0 bg-gradient-to-r from-violet-50 to-blue-50 border-b border-border/40">
-          <div className="rounded-xl bg-violet-100 p-2">
-            <Brain className="h-4 w-4 text-violet-600" />
+        <CardHeader className="flex-row items-center gap-2 space-y-0 bg-gradient-to-r from-gray-50 to-slate-50 border-b border-border/40">
+          <div className="rounded-xl bg-gray-100 p-2">
+            <Brain className="h-4 w-4 text-foreground" />
           </div>
           <div className="flex-1">
             <CardTitle className="text-sm font-medium text-foreground flex items-center gap-1.5">
               StockShiftAI Insights
-              <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+              <Sparkles className="h-3.5 w-3.5 text-foreground" />
             </CardTitle>
             {insights?.summary && (
               <p className="text-xs text-muted-foreground mt-0.5">{insights.summary}</p>
@@ -255,7 +255,7 @@ export default function AdminDashboardPage() {
                     key={`${rec.sku}-${idx}`}
                     className="flex items-start gap-3 rounded-lg border border-border/60 p-3 hover:bg-muted/30 transition-colors"
                   >
-                    <div className={cn("rounded-lg p-2 mt-0.5", rec.type === "reorder" ? "bg-blue-50 text-blue-600" : rec.type === "anomaly" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600")}>
+                    <div className={cn("rounded-lg p-2 mt-0.5", rec.type === "reorder" ? "bg-gray-100 text-foreground" : rec.type === "anomaly" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600")}>
                       <TypeIcon className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">

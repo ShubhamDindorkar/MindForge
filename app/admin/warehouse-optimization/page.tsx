@@ -74,23 +74,23 @@ export default function WarehouseOptimizationPage() {
       </div>
 
       {/* Network Health Score */}
-      <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
+      <Card className="border-border bg-gradient-to-r from-gray-50 to-slate-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-purple-600" />
+            <TrendingUp className="w-5 h-5 text-foreground" />
             Network Health Score
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-6">
-            <div className="text-5xl font-bold text-purple-700">
+            <div className="text-5xl font-bold text-foreground">
               {data.network_health_score}
               <span className="text-2xl text-muted-foreground">/100</span>
             </div>
             <div className="flex-1">
               <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
+                  className="h-full bg-gradient-to-r from-gray-700 to-gray-900 transition-all"
                   style={{ width: `${data.network_health_score}%` }}
                 />
               </div>
@@ -123,7 +123,7 @@ export default function WarehouseOptimizationPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.warehouses.map((wh) => (
-            <Card key={wh.location} className="border-blue-200">
+            <Card key={wh.location} className="border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">{wh.location}</CardTitle>
               </CardHeader>
@@ -154,7 +154,7 @@ export default function WarehouseOptimizationPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ArrowRight className="w-5 h-5 text-blue-600" />
+            <ArrowRight className="w-5 h-5 text-foreground" />
             Transfer Recommendations
           </CardTitle>
         </CardHeader>
@@ -170,7 +170,7 @@ export default function WarehouseOptimizationPage() {
               {data.transfer_recommendations.map((transfer, idx) => (
                 <div
                   key={idx}
-                  className="p-4 rounded-lg border bg-gradient-to-r from-blue-50 to-cyan-50 hover:shadow-md transition-shadow"
+                  className="p-4 rounded-lg border bg-gradient-to-r from-gray-50 to-slate-50 hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
@@ -225,10 +225,10 @@ export default function WarehouseOptimizationPage() {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                  <div className="p-3 bg-gray-50 border border-border rounded">
                     <p className="text-sm">
-                      <span className="font-medium text-blue-800">💡 Reason: </span>
-                      <span className="text-blue-700">{transfer.reason}</span>
+                      <span className="font-medium text-foreground">💡 Reason: </span>
+                      <span className="text-muted-foreground">{transfer.reason}</span>
                     </p>
                   </div>
                 </div>

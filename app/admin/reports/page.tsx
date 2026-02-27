@@ -325,8 +325,8 @@ export default function ReportsPage() {
             <Card className="flex flex-col border border-border/60 shadow-none">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50">
-                    <ArrowLeftRight className="h-5 w-5 text-blue-600" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-50">
+                    <ArrowLeftRight className="h-5 w-5 text-foreground" />
                   </div>
                   <div>
                     <CardTitle className="text-base">Stock Movement</CardTitle>
@@ -412,13 +412,13 @@ export default function ReportsPage() {
           {/* SKU Selector */}
           <Card className="border border-border/60 shadow-none">
             <CardHeader className="pb-3 flex-row items-center gap-2 space-y-0">
-              <div className="rounded-xl bg-violet-100 p-2">
-                <Brain className="h-4 w-4 text-violet-600" />
+              <div className="rounded-xl bg-gray-100 p-2">
+                <Brain className="h-4 w-4 text-foreground" />
               </div>
               <div className="flex-1">
                 <CardTitle className="text-base flex items-center gap-1.5">
                   Demand Forecast
-                  <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+                  <Sparkles className="h-3.5 w-3.5 text-foreground" />
                 </CardTitle>
                 <CardDescription>
                   14-day AI-powered demand prediction with reorder recommendations
@@ -488,12 +488,12 @@ export default function ReportsPage() {
                       <AreaChart data={chartData}>
                         <defs>
                           <linearGradient id="actualGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.3} />
-                            <stop offset="100%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0} />
+                            <stop offset="0%" stopColor="hsl(0, 0%, 15%)" stopOpacity={0.3} />
+                            <stop offset="100%" stopColor="hsl(0, 0%, 15%)" stopOpacity={0} />
                           </linearGradient>
                           <linearGradient id="predictedGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="hsl(262, 83%, 58%)" stopOpacity={0.3} />
-                            <stop offset="100%" stopColor="hsl(262, 83%, 58%)" stopOpacity={0} />
+                            <stop offset="0%" stopColor="hsl(0, 0%, 30%)" stopOpacity={0.3} />
+                            <stop offset="100%" stopColor="hsl(0, 0%, 30%)" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(0, 0%, 90%)" />
@@ -520,7 +520,7 @@ export default function ReportsPage() {
                         <Area
                           type="monotone"
                           dataKey="actual"
-                          stroke="hsl(217, 91%, 60%)"
+                          stroke="hsl(0, 0%, 15%)"
                           strokeWidth={2}
                           fill="url(#actualGrad)"
                           name="Actual"
@@ -529,7 +529,7 @@ export default function ReportsPage() {
                         <Area
                           type="monotone"
                           dataKey="predicted"
-                          stroke="hsl(262, 83%, 58%)"
+                          stroke="hsl(0, 0%, 30%)"
                           strokeWidth={2}
                           strokeDasharray="5 5"
                           fill="url(#predictedGrad)"
@@ -562,11 +562,11 @@ export default function ReportsPage() {
                   {/* Legend */}
                   <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-block h-2.5 w-5 rounded bg-blue-500" />
+                      <span className="inline-block h-2.5 w-5 rounded bg-gray-800" />
                       <span className="text-xs text-muted-foreground">Actual Demand</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-block h-2.5 w-5 rounded bg-violet-500 opacity-60" style={{ backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 3px, white 3px, white 5px)" }} />
+                      <span className="inline-block h-2.5 w-5 rounded bg-gray-500 opacity-60" style={{ backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 3px, white 3px, white 5px)" }} />
                       <span className="text-xs text-muted-foreground">Predicted Demand</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -583,12 +583,12 @@ export default function ReportsPage() {
                 <Card className={cn(
                   "border shadow-none",
                   forecast.reorder?.recommended
-                    ? "border-blue-200 bg-blue-50/30"
+                    ? "border-border bg-gray-50/30"
                     : "border-border/60"
                 )}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium flex items-center gap-1.5">
-                      <Package className="h-4 w-4 text-blue-600" />
+                      <Package className="h-4 w-4 text-foreground" />
                       Reorder Recommendation
                     </CardTitle>
                   </CardHeader>
@@ -771,7 +771,7 @@ export default function ReportsPage() {
                             )}
                           </div>
                           {a.recommendation && (
-                            <p className="text-xs text-blue-600 mt-1.5 flex items-center gap-1">
+                            <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
                               <Sparkles className="h-3 w-3" />
                               {a.recommendation}
                             </p>
