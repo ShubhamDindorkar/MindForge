@@ -65,7 +65,7 @@ export default function LandingPage() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-2">
             <Boxes className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold">MindForge</span>
+            <span className="text-xl font-medium">MindForge</span>
           </div>
           <Link href="/login">
             <Button size="sm">
@@ -76,24 +76,14 @@ export default function LandingPage() {
       </nav>
 
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-        <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-3xl" />
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-card px-4 py-1.5 text-sm text-muted-foreground">
             <Zap className="h-4 w-4 text-primary" />
             Inventory meets financial intelligence
           </div>
-          <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Streamline Your{" "}
-            <span className="bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
-              Inventory
-            </span>
-            .<br />
-            Master Your{" "}
-            <span className="bg-gradient-to-r from-emerald-400 to-primary bg-clip-text text-transparent">
-              Finances
-            </span>
-            .
+          <h1 className="mb-6 text-5xl font-medium tracking-tight sm:text-6xl lg:text-7xl text-foreground">
+            Streamline Your Inventory.<br />
+            Master Your Finances.
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
             The all-in-one platform that connects warehouse operations to financial
@@ -118,7 +108,7 @@ export default function LandingPage() {
       <section id="features" className="py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+            <h2 className="mb-4 text-3xl font-medium sm:text-4xl">
               Everything you need to run your warehouse
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground">
@@ -131,10 +121,10 @@ export default function LandingPage() {
                 key={feature.title}
                 className="group rounded-lg border bg-card p-6 transition-colors hover:border-primary/50"
               >
-                <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3">
+                <div className="mb-4 inline-flex rounded-lg bg-muted p-3">
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-2 font-semibold">{feature.title}</h3>
+                <h3 className="mb-2 font-normal">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground">
                   {feature.description}
                 </p>
@@ -147,7 +137,7 @@ export default function LandingPage() {
       <section className="border-y bg-card/50 py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+            <h2 className="mb-4 text-3xl font-medium sm:text-4xl">
               How it works
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground">
@@ -160,10 +150,10 @@ export default function LandingPage() {
                 {i < steps.length - 1 && (
                   <div className="absolute right-0 top-8 hidden h-px w-full bg-gradient-to-r from-border to-transparent sm:block" />
                 )}
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted text-2xl font-medium text-foreground">
                   {step.number}
                 </div>
-                <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
+                <h3 className="mb-2 text-xl font-normal">{step.title}</h3>
                 <p className="text-sm text-muted-foreground">
                   {step.description}
                 </p>
@@ -175,7 +165,7 @@ export default function LandingPage() {
 
       <section className="py-24">
         <div className="mx-auto max-w-3xl px-6 text-center">
-          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+          <h2 className="mb-4 text-3xl font-medium sm:text-4xl">
             Ready to take control?
           </h2>
           <p className="mb-8 text-muted-foreground">
@@ -193,7 +183,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
           <div className="flex items-center gap-2">
             <Boxes className="h-5 w-5 text-primary" />
-            <span className="font-semibold">MindForge</span>
+            <span className="font-normal">MindForge</span>
           </div>
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} MindForge. All rights reserved.

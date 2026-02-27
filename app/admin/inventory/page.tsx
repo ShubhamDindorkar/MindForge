@@ -235,7 +235,7 @@ export default function InventoryPage() {
       <div className="flex items-center gap-3">
         <Package className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
+          <h1 className="text-3xl font-medium tracking-tight">Inventory</h1>
           <p className="text-muted-foreground">
             Manage your stock items, quantities, and details.
           </p>

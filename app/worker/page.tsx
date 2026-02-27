@@ -83,15 +83,15 @@ export default function WorkerHomePage() {
     {
       label: "Stock In",
       icon: ArrowDownToLine,
-      color: "text-emerald-500",
-      bg: "bg-emerald-500/10",
+      color: "text-foreground",
+      bg: "bg-muted",
       action: () => setDialogMode("in"),
     },
     {
       label: "Stock Out",
       icon: ArrowUpFromLine,
-      color: "text-red-400",
-      bg: "bg-red-400/10",
+      color: "text-muted-foreground",
+      bg: "bg-muted",
       action: () => setDialogMode("out"),
     },
   ];
@@ -100,7 +100,7 @@ export default function WorkerHomePage() {
     <div className="space-y-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-xl font-bold">Hello, {user?.name}</h1>
+        <h1 className="text-xl font-medium">Hello, {user?.name}</h1>
         <p className="text-sm text-muted-foreground">{today}</p>
       </div>
 
@@ -130,7 +130,7 @@ export default function WorkerHomePage() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold">Recent Activity</h2>
+          <h2 className="text-sm font-normal">Recent Activity</h2>
         </div>
 
         {recentTransactions.length === 0 ? (
@@ -155,10 +155,10 @@ export default function WorkerHomePage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-sm font-semibold ${
+                      className={`text-sm font-normal ${
                         tx.type === "in"
-                          ? "text-emerald-500"
-                          : "text-red-400"
+                          ? "text-foreground"
+                          : "text-muted-foreground"
                       }`}
                     >
                       {tx.type === "in" ? "+" : "-"}

@@ -75,11 +75,11 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-100">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-40 bg-black/20 md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -87,7 +87,7 @@ export default function AdminLayout({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-800 bg-slate-900 transition-all duration-300 md:relative md:z-auto",
+          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-background transition-all duration-300 md:relative md:z-auto",
           sidebarOpen ? "w-64" : "w-16",
           mobileOpen
             ? "translate-x-0"
@@ -97,14 +97,14 @@ export default function AdminLayout({
         {/* Sidebar header */}
         <div className="flex h-14 items-center justify-between px-4">
           {sidebarOpen && (
-            <span className="text-lg font-semibold tracking-tight text-emerald-400">
+            <span className="text-lg font-medium tracking-tight text-foreground">
               MindForge
             </span>
           )}
           <Button
             variant="ghost"
             size="icon"
-            className="hidden text-slate-400 hover:text-slate-100 md:inline-flex"
+            className="hidden text-muted-foreground hover:text-foreground md:inline-flex"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             <ChevronLeft
@@ -117,14 +117,14 @@ export default function AdminLayout({
           <Button
             variant="ghost"
             size="icon"
-            className="text-slate-400 hover:text-slate-100 md:hidden"
+            className="text-muted-foreground hover:text-foreground md:hidden"
             onClick={() => setMobileOpen(false)}
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <Separator className="bg-slate-800" />
+        <Separator className="bg-muted" />
 
         {/* Nav items */}
         <nav className="flex-1 space-y-1 px-2 py-4">
@@ -137,8 +137,8 @@ export default function AdminLayout({
                 className={cn(
                   "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-emerald-500/10 text-emerald-400"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 <item.icon className="h-5 w-5 shrink-0" />
@@ -152,17 +152,17 @@ export default function AdminLayout({
       {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-800 bg-slate-900 px-4">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-4">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
-              className="text-slate-400 hover:text-slate-100 md:hidden"
+              className="text-muted-foreground hover:text-foreground md:hidden"
               onClick={() => setMobileOpen(true)}
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <h1 className="text-lg font-semibold">
+            <h1 className="text-lg font-medium">
               {getPageTitle(pathname)}
             </h1>
           </div>
@@ -171,10 +171,10 @@ export default function AdminLayout({
             <Button
               variant="ghost"
               size="icon"
-              className="relative text-slate-400 hover:text-slate-100"
+              className="relative text-muted-foreground hover:text-foreground"
             >
               <Bell className="h-5 w-5" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-foreground" />
             </Button>
 
             <DropdownMenu>
@@ -184,12 +184,12 @@ export default function AdminLayout({
                   className="flex items-center gap-2 px-2"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-emerald-600 text-sm text-white">
+                    <AvatarFallback className="bg-foreground text-sm text-primary-foreground">
                       {user ? getInitials(user.name) : "?"}
                     </AvatarFallback>
                   </Avatar>
                   {sidebarOpen && (
-                    <span className="hidden text-sm font-medium text-slate-200 lg:inline-block">
+                    <span className="hidden text-sm font-medium text-foreground lg:inline-block">
                       {user?.name}
                     </span>
                   )}
@@ -197,18 +197,18 @@ export default function AdminLayout({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-48 border-slate-800 bg-slate-900 text-slate-200"
+                className="w-48 border-border bg-background text-foreground"
               >
-                <DropdownMenuLabel className="text-slate-400">
+                <DropdownMenuLabel className="text-muted-foreground">
                   {user?.email}
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-slate-800" />
+                <DropdownMenuSeparator className="bg-muted" />
                 <DropdownMenuItem
                   onClick={() => {
                     logout();
                     router.replace("/login");
                   }}
-                  className="cursor-pointer text-red-400 focus:bg-slate-800 focus:text-red-400"
+                  className="cursor-pointer text-destructive focus:bg-muted focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
@@ -219,7 +219,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto bg-slate-950 p-6">
+        <main className="flex-1 overflow-y-auto bg-background p-6">
           {children}
         </main>
       </div>

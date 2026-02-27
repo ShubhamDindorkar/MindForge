@@ -33,8 +33,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-
       <div className="relative z-10 w-full max-w-md space-y-6">
         <div className="text-center">
           <Link
@@ -46,7 +44,7 @@ export default function LoginPage() {
           </Link>
           <div className="mt-4 flex items-center justify-center gap-2">
             <Boxes className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">MindForge</h1>
+            <h1 className="text-2xl font-medium">MindForge</h1>
           </div>
           <p className="mt-2 text-muted-foreground">
             {selectedRole
@@ -61,10 +59,10 @@ export default function LoginPage() {
               onClick={() => setSelectedRole("admin")}
               className="group rounded-lg border bg-card p-6 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
             >
-              <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3">
+              <div className="mb-4 inline-flex rounded-lg bg-muted p-3">
                 <Shield className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="mb-1 font-semibold">Admin</h3>
+              <h3 className="mb-1 font-normal">Admin</h3>
               <p className="text-xs text-muted-foreground">
                 Manage inventory, analytics & finances
               </p>
@@ -73,10 +71,10 @@ export default function LoginPage() {
               onClick={() => setSelectedRole("worker")}
               className="group rounded-lg border bg-card p-6 text-left transition-all hover:border-primary/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
             >
-              <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3">
+              <div className="mb-4 inline-flex rounded-lg bg-muted p-3">
                 <ScanLine className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="mb-1 font-semibold">Worker</h3>
+              <h3 className="mb-1 font-normal">Worker</h3>
               <p className="text-xs text-muted-foreground">
                 Scan items & update stock levels
               </p>

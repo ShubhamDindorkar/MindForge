@@ -169,7 +169,7 @@ export default function ReportsPage() {
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
                 <Package className="h-5 w-5 text-primary" />
               </div>
               <div>
@@ -207,7 +207,7 @@ export default function ReportsPage() {
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
                 <ArrowLeftRight className="h-5 w-5 text-primary" />
               </div>
               <div>
@@ -226,11 +226,11 @@ export default function ReportsPage() {
                 {totalTransactions}
               </span>
               <span className="text-muted-foreground">Items In</span>
-              <span className="text-right font-medium text-emerald-500">
+              <span className="text-right font-medium text-foreground">
                 +{itemsIn}
               </span>
               <span className="text-muted-foreground">Items Out</span>
-              <span className="text-right font-medium text-red-400">
+              <span className="text-right font-medium text-muted-foreground">
                 -{itemsOut}
               </span>
             </div>
@@ -247,7 +247,7 @@ export default function ReportsPage() {
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10">
+              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
                 <DollarSign className="h-5 w-5 text-primary" />
               </div>
               <div>
@@ -268,7 +268,7 @@ export default function ReportsPage() {
                 {formatCurrency(totalCosts)}
               </span>
               <span className="text-muted-foreground">Net Profit</span>
-              <span className="text-right font-medium text-emerald-500">
+              <span className="text-right font-medium text-foreground">
                 {formatCurrency(netProfit)}
               </span>
             </div>

@@ -6,7 +6,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Season Mix"', "sans-serif"],
+        sans: ['"Season"', "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

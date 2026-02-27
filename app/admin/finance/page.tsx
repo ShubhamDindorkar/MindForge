@@ -45,22 +45,22 @@ import {
 } from "lucide-react";
 
 const CHART_COLORS = [
-  "hsl(160, 84%, 45%)",
-  "hsl(217, 91%, 65%)",
-  "hsl(38, 92%, 55%)",
-  "hsl(280, 65%, 65%)",
-  "hsl(340, 75%, 60%)",
-  "hsl(200, 70%, 50%)",
+  "hsl(0,0%,12%)",
+  "hsl(0,0%,32%)",
+  "hsl(0,0%,52%)",
+  "hsl(0,0%,68%)",
+  "hsl(0,0%,80%)",
+  "hsl(0,0%,90%)",
 ];
 
 const tooltipStyle = {
   contentStyle: {
-    backgroundColor: "hsl(220, 20%, 12%)",
-    border: "1px solid hsl(220, 15%, 22%)",
+    backgroundColor: "hsl(0, 0%, 100%)",
+    border: "1px solid hsl(0, 0%, 90%)",
     borderRadius: "8px",
-    color: "hsl(0, 0%, 90%)",
+    color: "hsl(0, 0%, 20%)",
   },
-  labelStyle: { color: "hsl(0, 0%, 70%)" },
+  labelStyle: { color: "hsl(0, 0%, 45%)" },
 };
 
 export default function FinancePage() {
@@ -178,7 +178,7 @@ export default function FinancePage() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={financialSummaries}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220,15%,22%)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,90%)" />
                     <XAxis dataKey="month" tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }} />
                     <YAxis
                       tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }}
@@ -202,7 +202,7 @@ export default function FinancePage() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={categorySpending} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220,15%,22%)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,90%)" />
                     <XAxis
                       type="number"
                       tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }}
@@ -407,7 +407,7 @@ export default function FinancePage() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={320}>
                   <LineChart data={financialSummaries}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220,15%,22%)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,90%)" />
                     <XAxis dataKey="month" tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }} />
                     <YAxis
                       tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }}
@@ -569,7 +569,7 @@ export default function FinancePage() {
             <CardContent>
               <ResponsiveContainer width="100%" height={340}>
                 <LineChart data={forecastChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(220,15%,22%)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,90%)" />
                   <XAxis dataKey="month" tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }} />
                   <YAxis
                     tick={{ fill: "hsl(0,0%,60%)", fontSize: 12 }}
