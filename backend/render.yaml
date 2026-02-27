@@ -4,12 +4,11 @@ services:
     env: docker
     plan: free
     region: ohio
-    # No GPU requested - Free tier is shared CPU only
-    # RAM Limit is 512MB
+    # Crucial: Tell Render the code is in the 'backend' folder
+    rootDir: backend
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: PORT
         value: "10000"
     healthCheckPath: /health
-    # Render's automatic port detection might use PORT, but we explicitly use 10000
