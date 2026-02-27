@@ -55,8 +55,8 @@ const features = [
 const steps = [
   {
     number: "01",
-    title: "Record",
-    description: "Log stock-in, stock-out, and cost updates as they happen. Every movement is recorded in one place.",
+    title: "Visibility",
+    description: "See stock levels, movements, and costs in real time. Everything in one place—no manual logging.",
   },
   {
     number: "02",
@@ -137,7 +137,7 @@ export default function LandingPage() {
   }, []);
 
   const stepCount = 3;
-  // Give "Record" more scroll before switching: 40% → Record, 30% → Unify, 30% → Insight
+  // Give "Visibility" more scroll before switching: 40% → Visibility, 30% → Unify, 30% → Insight
   const stepThresholds = [0.4, 0.7];
   const stepIndex = (() => {
     if (scrollProgress < stepThresholds[0]) return 0;
