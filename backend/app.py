@@ -704,29 +704,72 @@ CURRENT INVENTORY DATA:
 
     raw = call_llm(SYSTEM_PROMPT, prompt)
     
-    try:
-        cleaned = raw.strip()
-        if cleaned.startswith("```"):
-            cleaned = cleaned.split("\n", 1)[1]
-        if cleaned.endswith("```"):
-            cleaned = cleaned.rsplit("```", 1)[0]
-        cleaned = cleaned.strip()
-        parsed = json.loads(cleaned)
-        return jsonify(parsed)
-    except json.JSONDecodeError:
+    parsed = _extract_json(raw)
+    if parsed and isinstance(parsed.get("skus"), list) and isinstance(parsed.get("overall_impact"), dict):
+        # Normalize for frontend
+        scenario_summary = parsed.get("scenario_summary") or {}
+        overall = parsed.get("overall_impact") or {}
         return jsonify({
             "scenario_summary": {
-                "demand_change_pct": (demand_modifier - 1) * 100,
-                "lead_time_change_pct": (lead_time_modifier - 1) * 100,
-                "safety_stock_change_pct": (safety_stock_modifier - 1) * 100
+                "demand_change_pct": float(scenario_summary.get("demand_change_pct", (demand_modifier - 1) * 100)),
+                "lead_time_change_pct": float(scenario_summary.get("lead_time_change_pct", (lead_time_modifier - 1) * 100)),
+                "safety_stock_change_pct": float(scenario_summary.get("safety_stock_change_pct", (safety_stock_modifier - 1) * 100)),
             },
-            "skus": [],
+            "skus": parsed.get("skus") or [],
             "overall_impact": {
-                "stockouts_prevented": 0,
-                "new_stockout_risks": 0,
-                "capital_change": 0
-            }
+                "stockouts_prevented": int(overall.get("stockouts_prevented", 0) or 0),
+                "new_stockout_risks": int(overall.get("new_stockout_risks", 0) or 0),
+                "capital_change": float(overall.get("capital_change", 0) or 0),
+            },
         })
+    
+    # Fallback: compute simple SKU projections from inventory so the UI shows something
+    skus_list = []
+    for s in all_stats:
+        avg_d = s.get("avg_daily_demand_30d") or s.get("avg_daily_demand_7d") or 0
+        current_stock = s.get("current_stock", 0)
+        days_out = (current_stock / avg_d) if avg_d and avg_d > 0 else 999
+        reorder_pt = s.get("reorder_point", 0) or max(0, int(avg_d * (s.get("lead_time_days", 7) or 7)))
+        # Apply modifiers to get projected values
+        proj_demand = avg_d * demand_modifier
+        proj_days_out = (current_stock / proj_demand) if proj_demand and proj_demand > 0 else 999
+        proj_reorder = int(reorder_pt * safety_stock_modifier * lead_time_modifier)
+        impact = "neutral"
+        if proj_days_out < days_out and proj_days_out < 14:
+            impact = "negative"
+        elif proj_days_out > days_out:
+            impact = "positive"
+        skus_list.append({
+            "sku": s.get("sku", "?"),
+            "name": s.get("name", "Unknown"),
+            "current": {
+                "avg_daily_demand": round(avg_d, 2),
+                "days_until_stockout": round(days_out, 0),
+                "reorder_point": reorder_pt,
+            },
+            "projected": {
+                "avg_daily_demand": round(proj_demand, 2),
+                "days_until_stockout": round(proj_days_out, 0),
+                "reorder_point": proj_reorder,
+            },
+            "impact": impact,
+            "action_needed": "Review reorder point and lead time assumptions." if impact != "neutral" else "",
+        })
+    total_value = sum(s.get("current_stock", 0) * s.get("unit_cost", 0) for s in all_stats)
+    capital_change = total_value * (demand_modifier * safety_stock_modifier * (2 - lead_time_modifier) - 1) * 0.1
+    return jsonify({
+        "scenario_summary": {
+            "demand_change_pct": (demand_modifier - 1) * 100,
+            "lead_time_change_pct": (lead_time_modifier - 1) * 100,
+            "safety_stock_change_pct": (safety_stock_modifier - 1) * 100
+        },
+        "skus": skus_list,
+        "overall_impact": {
+            "stockouts_prevented": sum(1 for sku in skus_list if sku["impact"] == "positive" and sku["current"]["days_until_stockout"] < 14),
+            "new_stockout_risks": sum(1 for sku in skus_list if sku["impact"] == "negative"),
+            "capital_change": round(capital_change, 2)
+        }
+    })
 
 
 @app.route("/api/warehouse-optimization", methods=["GET"])
