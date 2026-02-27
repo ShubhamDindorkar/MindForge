@@ -12,12 +12,17 @@ import {
   LogOut,
   Settings,
   Boxes,
+  ChevronUp,
 } from "lucide-react";
 import { useAuth } from "@/_lib/auth-context";
 import { cn } from "@/_lib/utils";
 import { Button } from "@/_components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/_components/ui/avatar";
 import { Separator } from "@/_components/ui/separator";
+import {
+  AnimatePresence,
+  motion,
+} from "motion/react";
 
 const sidebarSections = [
   {
@@ -45,6 +50,91 @@ function getInitials(name: string): string {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+}
+
+function BottomSection({
+  user,
+  router,
+  pathname,
+  logout,
+}: {
+  user: any;
+  router: any;
+  pathname: string;
+  logout: () => void;
+}) {
+  const [showSignOut, setShowSignOut] = useState(false);
+  const isSettingsActive = pathname.startsWith("/admin/settings");
+
+  return (
+    <div className="mt-auto border-t border-black/5 px-3 py-3 space-y-1">
+      <button
+        onClick={() => router.push("/admin/settings")}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+          isSettingsActive
+            ? "bg-muted text-foreground font-medium"
+            : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+        )}
+      >
+        <Settings className="h-[18px] w-[18px] shrink-0" />
+        <span>Settings</span>
+      </button>
+
+      <Separator className="my-2" />
+
+      <button
+        onClick={() => setShowSignOut((prev) => !prev)}
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-muted/60"
+      >
+        <Avatar className="h-8 w-8">
+          {user?.avatar ? (
+            <AvatarImage src={user.avatar} alt={user.name} />
+          ) : null}
+          <AvatarFallback className="bg-muted text-xs text-foreground">
+            {user ? getInitials(user.name) : "?"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0 text-left">
+          <p className="truncate text-sm font-medium text-foreground">
+            {user?.name}
+          </p>
+          <p className="truncate text-xs text-muted-foreground">
+            {user?.email}
+          </p>
+        </div>
+        <ChevronUp
+          className={cn(
+            "h-4 w-4 text-muted-foreground transition-transform duration-200",
+            showSignOut ? "rotate-0" : "rotate-180"
+          )}
+        />
+      </button>
+
+      <AnimatePresence>
+        {showSignOut && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-hidden"
+          >
+            <button
+              onClick={() => {
+                logout();
+                router.replace("/login");
+              }}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+            >
+              <LogOut className="h-[18px] w-[18px] shrink-0" />
+              <span>Sign out</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export default function AdminLayout({
@@ -78,7 +168,7 @@ export default function AdminLayout({
       <div className="flex h-14 items-center justify-between px-5">
         <div className="flex items-center gap-2">
           <Boxes className="h-5 w-5 text-foreground" />
-          <span className="text-lg font-medium tracking-tight text-foreground">
+          <span className="text-lg font-bold uppercase tracking-wide text-foreground">
             MindForge
           </span>
         </div>
@@ -123,52 +213,18 @@ export default function AdminLayout({
         ))}
       </nav>
 
-      {/* Bottom section: Settings, User, Sign Out */}
-      <div className="mt-auto border-t border-border px-3 py-3 space-y-1">
-        <button
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-        >
-          <Settings className="h-[18px] w-[18px] shrink-0" />
-          <span>Settings</span>
-        </button>
-
-        <Separator className="my-2" />
-
-        <div className="flex items-center gap-3 px-3 py-2">
-          <Avatar className="h-8 w-8">
-            {user?.avatar ? (
-              <AvatarImage src={user.avatar} alt={user.name} />
-            ) : null}
-            <AvatarFallback className="bg-muted text-xs text-foreground">
-              {user ? getInitials(user.name) : "?"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-foreground">
-              {user?.name}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {user?.email}
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => {
-            logout();
-            router.replace("/login");
-          }}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-        >
-          <LogOut className="h-[18px] w-[18px] shrink-0" />
-          <span>Sign out</span>
-        </button>
-      </div>
+      {/* Bottom section: Settings, User */}
+      <BottomSection user={user} router={router} pathname={pathname} logout={logout} />
     </>
   );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-foreground">
+    <div
+      className="flex h-screen overflow-hidden text-foreground p-3 gap-3"
+      style={{
+        background: "linear-gradient(135deg, #B8FFD0 0%, #FFF6C9 100%)",
+      }}
+    >
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -178,14 +234,14 @@ export default function AdminLayout({
       )}
 
       {/* Sidebar — Desktop */}
-      <aside className="hidden md:flex w-[240px] shrink-0 flex-col border-r border-border bg-background">
+      <aside className="hidden md:flex w-[260px] shrink-0 flex-col rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-white/50">
         <SidebarContent />
       </aside>
 
       {/* Sidebar — Mobile */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-border bg-background transition-transform duration-300 md:hidden",
+          "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col bg-white shadow-lg transition-transform duration-300 md:hidden m-3 rounded-2xl",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -193,9 +249,9 @@ export default function AdminLayout({
       </aside>
 
       {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-white/50">
         {/* Welcome header */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-6">
+        <header className="flex h-14 shrink-0 items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -209,17 +265,10 @@ export default function AdminLayout({
               Welcome, {user?.name?.split(" ")[0] ?? "User"}
             </h1>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-          >
-            <Settings className="h-[18px] w-[18px]" />
-          </Button>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto bg-background p-6">
+        <main className="flex-1 overflow-y-auto p-6 pt-0">
           {children}
         </main>
       </div>
