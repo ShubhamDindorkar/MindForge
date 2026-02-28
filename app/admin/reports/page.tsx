@@ -166,10 +166,10 @@ export default function ReportsPage() {
   }
 
   function exportMovementCSV() {
-    const headers = ["Date", "SKU", "Item Name", "Type", "Quantity", "Notes"];
+    const headers = ["Date", "Item ID", "Item Name", "Type", "Quantity", "Notes"];
     const rows = transactions.map((t) => [
       new Date(t.date).toLocaleDateString(),
-      t.sku,
+      t.itemId,
       t.itemName,
       t.type,
       t.quantity,
@@ -237,10 +237,10 @@ export default function ReportsPage() {
   }
 
   function exportMovementPdf() {
-    const headers = ["Date", "SKU", "Item", "Type", "Qty", "Notes"];
+    const headers = ["Date", "Item ID", "Item", "Type", "Qty", "Notes"];
     const rows = transactions.map((t) => [
       new Date(t.date).toLocaleDateString(),
-      t.sku,
+      t.itemId,
       t.itemName,
       t.type.toUpperCase(),
       String(t.quantity),
