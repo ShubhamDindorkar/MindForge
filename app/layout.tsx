@@ -13,6 +13,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "StockShiftAI - Inventory Management",
   description: "Streamline your inventory. Master your finances.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
