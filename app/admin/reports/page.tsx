@@ -34,6 +34,7 @@ import {
 import {
   FileText,
   Download,
+  FileDown,
   Package,
   ArrowLeftRight,
   DollarSign,
@@ -134,8 +135,130 @@ export default function ReportsPage() {
   );
   const netProfit = totalRevenue - totalCosts;
 
-  function handleExport() {
-    alert("Report exported!");
+  /* ── Export helpers ────────────────────────────────────────── */
+
+  function downloadFile(content: string, filename: string, mime: string) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function exportInventoryCSV() {
+    const headers = ["Name", "SKU", "Category", "Quantity", "Unit Cost", "Total Value", "Location", "Status"];
+    const rows = inventoryItems.map((i) => [
+      i.name,
+      i.sku,
+      i.category,
+      i.quantity,
+      i.unitCost.toFixed(2),
+      (i.quantity * i.unitCost).toFixed(2),
+      i.location,
+      i.quantity === 0 ? "Out of Stock" : i.quantity <= i.reorderPoint ? "Low Stock" : "In Stock",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    downloadFile(csv, `inventory-valuation-${startDate}-to-${endDate}.csv`, "text/csv");
+  }
+
+  function exportMovementCSV() {
+    const headers = ["Date", "SKU", "Item Name", "Type", "Quantity", "Notes"];
+    const rows = transactions.map((t) => [
+      new Date(t.date).toLocaleDateString(),
+      t.sku,
+      t.itemName,
+      t.type,
+      t.quantity,
+      t.notes || "",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    downloadFile(csv, `stock-movement-${startDate}-to-${endDate}.csv`, "text/csv");
+  }
+
+  function exportFinancialCSV() {
+    const headers = ["Month", "Revenue", "Costs", "Profit"];
+    const rows = financialSummaries.map((f) => [
+      f.month,
+      f.revenue.toFixed(2),
+      f.costs.toFixed(2),
+      (f.revenue - f.costs).toFixed(2),
+    ]);
+    rows.push(["TOTAL", totalRevenue.toFixed(2), totalCosts.toFixed(2), netProfit.toFixed(2)]);
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    downloadFile(csv, `financial-summary-${startDate}-to-${endDate}.csv`, "text/csv");
+  }
+
+  function buildPdfHtml(title: string, tableHeaders: string[], tableRows: string[][]) {
+    const thStyle = "padding:8px 12px;text-align:left;border-bottom:2px solid #222;font-weight:600;font-size:13px;";
+    const tdStyle = "padding:6px 12px;border-bottom:1px solid #e5e5e5;font-size:12px;";
+    const ths = tableHeaders.map((h) => `<th style="${thStyle}">${h}</th>`).join("");
+    const trs = tableRows
+      .map(
+        (row) =>
+          `<tr>${row.map((c) => `<td style="${tdStyle}">${c}</td>`).join("")}</tr>`
+      )
+      .join("");
+    return `<!DOCTYPE html><html><head><title>${title}</title>
+      <style>@media print{@page{margin:20mm}body{font-family:system-ui,sans-serif;color:#111}}</style>
+      </head><body>
+      <h1 style="font-size:20px;margin-bottom:4px">${title}</h1>
+      <p style="color:#666;font-size:12px;margin-bottom:16px">StockShiftAI &mdash; ${startDate} to ${endDate}</p>
+      <table style="width:100%;border-collapse:collapse"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>
+      </body></html>`;
+  }
+
+  function exportPdf(title: string, headers: string[], rows: string[][]) {
+    const html = buildPdfHtml(title, headers, rows);
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+    w.onafterprint = () => w.close();
+    setTimeout(() => w.print(), 300);
+  }
+
+  function exportInventoryPdf() {
+    const headers = ["Name", "SKU", "Category", "Qty", "Unit Cost", "Total Value", "Location", "Status"];
+    const rows = inventoryItems.map((i) => [
+      i.name,
+      i.sku,
+      i.category,
+      String(i.quantity),
+      formatCurrency(i.unitCost),
+      formatCurrency(i.quantity * i.unitCost),
+      i.location,
+      i.quantity === 0 ? "Out of Stock" : i.quantity <= i.reorderPoint ? "Low Stock" : "In Stock",
+    ]);
+    exportPdf("Inventory Valuation Report", headers, rows);
+  }
+
+  function exportMovementPdf() {
+    const headers = ["Date", "SKU", "Item", "Type", "Qty", "Notes"];
+    const rows = transactions.map((t) => [
+      new Date(t.date).toLocaleDateString(),
+      t.sku,
+      t.itemName,
+      t.type.toUpperCase(),
+      String(t.quantity),
+      t.notes || "—",
+    ]);
+    exportPdf("Stock Movement Report", headers, rows);
+  }
+
+  function exportFinancialPdf() {
+    const headers = ["Month", "Revenue", "Costs", "Profit"];
+    const rows = financialSummaries.map((f) => [
+      f.month,
+      formatCurrency(f.revenue),
+      formatCurrency(f.costs),
+      formatCurrency(f.revenue - f.costs),
+    ]);
+    rows.push(["TOTAL", formatCurrency(totalRevenue), formatCurrency(totalCosts), formatCurrency(netProfit)]);
+    exportPdf("Financial Summary Report", headers, rows);
   }
 
   const presets: { key: Preset; label: string }[] = [
@@ -480,10 +603,14 @@ export default function ReportsPage() {
                   </span>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button className="w-full gap-2" onClick={handleExport}>
+              <CardFooter className="flex gap-2">
+                <Button className="flex-1 gap-2" onClick={exportInventoryCSV}>
                   <Download className="h-4 w-4" />
-                  Export CSV
+                  CSV
+                </Button>
+                <Button variant="outline" className="flex-1 gap-2" onClick={exportInventoryPdf}>
+                  <FileDown className="h-4 w-4" />
+                  PDF
                 </Button>
               </CardFooter>
             </Card>
@@ -520,10 +647,14 @@ export default function ReportsPage() {
                   </span>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button className="w-full gap-2" onClick={handleExport}>
+              <CardFooter className="flex gap-2">
+                <Button className="flex-1 gap-2" onClick={exportMovementCSV}>
                   <Download className="h-4 w-4" />
-                  Export CSV
+                  CSV
+                </Button>
+                <Button variant="outline" className="flex-1 gap-2" onClick={exportMovementPdf}>
+                  <FileDown className="h-4 w-4" />
+                  PDF
                 </Button>
               </CardFooter>
             </Card>
@@ -558,10 +689,14 @@ export default function ReportsPage() {
                   </span>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button className="w-full gap-2" onClick={handleExport}>
+              <CardFooter className="flex gap-2">
+                <Button className="flex-1 gap-2" onClick={exportFinancialCSV}>
                   <Download className="h-4 w-4" />
-                  Export CSV
+                  CSV
+                </Button>
+                <Button variant="outline" className="flex-1 gap-2" onClick={exportFinancialPdf}>
+                  <FileDown className="h-4 w-4" />
+                  PDF
                 </Button>
               </CardFooter>
             </Card>
